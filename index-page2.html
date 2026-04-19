@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>index-page2 - Name ID + Card List</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&display=swap');
+
+  :root{
+    --primary:#7c3aed;
+    --primary-dark:#5b21b6;
+    --bg1:#eef2ff;
+    --bg2:#fdf2f8;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --border:#d1d5db;
+    --success:#10b981;
+    --success-dark:#059669;
+    --danger:#dc2626;
+    --danger-bg:#fee2e2;
+    --output-bg:#111827;
+    --blue:#3498db;
+    --blue-dark:#2980b9;
+    --green:#27ae60;
+    --green-dark:#219653;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    font-family:'Kanit',sans-serif;
+    color:var(--text);
+    background:linear-gradient(135deg,var(--bg1) 0%, var(--bg2) 100%);
+    min-height:100vh;
+    padding:24px;
+  }
+
+  .wrap{
+    max-width:1120px;
+    margin:0 auto;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:20px;
+    padding:28px;
+    box-shadow:0 14px 40px rgba(0,0,0,0.08);
+  }
+
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+
+  h1{
+    margin:0;
+    font-size:30px;
+    line-height:1.2;
+    color:var(--primary-dark);
+    font-weight:800;
+  }
+
+  .sub{
+    margin:8px 0 0;
+    color:var(--muted);
+    font-size:15px;
+  }
+
+  .btn{
+    border:none;
+    border-radius:12px;
+    padding:11px 18px;
+    font-family:'Kanit',sans-serif;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s ease;
+  }
+
+  .btn:hover{
+    transform:translateY(-1px);
+  }
+
+  .btn-primary{
+    background:var(--primary);
+    color:#fff;
+  }
+
+  .btn-secondary{
+    background:#111827;
+    color:#fff;
+  }
+
+  .btn-success{
+    background:#16a34a;
+    color:#fff;
+  }
+
+  .btn:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+    transform:none;
+  }
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-bottom:18px;
+  }
+
+  .status{
+    font-size:14px;
+    font-weight:700;
+    color:#2563eb;
+  }
+
+  .copied{
+    color:var(--success);
+    font-size:13px;
+    font-weight:700;
+  }
+
+  .panel{
+    border:1px solid #ececec;
+    border-radius:16px;
+    padding:18px;
+    background:#fff;
+  }
+
+  .tab-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+
+  .tab-btn{
+    border:none;
+    border-radius:12px;
+    padding:11px 18px;
+    font-family:'Kanit',sans-serif;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    background:#f3f4f6;
+    color:#374151;
+    transition:.2s ease;
+  }
+
+  .tab-btn:hover{
+    transform:translateY(-1px);
+  }
+
+  .tab-btn.active{
+    background:var(--primary);
+    color:#fff;
+  }
+
+  .hidden{
+    display:none !important;
+  }
+
+  label{
+    display:block;
+    font-weight:700;
+    margin-bottom:8px;
+    color:#374151;
+  }
+
+  textarea,
+  input[type="text"]{
+    width:100%;
+    font-family:'Kanit',sans-serif;
+  }
+
+  textarea{
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+    font-size:15px;
+    resize:vertical;
+    min-height:220px;
+    outline:none;
+    transition:.2s ease;
+  }
+
+  textarea:focus,
+  input[type="text"]:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px rgba(124,58,237,.10);
+    outline:none;
+  }
+
+  #outputArea{
+    min-height:220px;
+    background:var(--output-bg);
+    color:#10b981;
+    border:none;
+    font-family:Consolas, monospace;
+    line-height:1.55;
+  }
+
+  .helper{
+    margin-top:8px;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  .notfound{
+    display:none;
+    margin-top:14px;
+    background:var(--danger-bg);
+    border:1px solid #fecaca;
+    color:#991b1b;
+    padding:14px;
+    border-radius:12px;
+    white-space:pre-line;
+    font-weight:700;
+  }
+
+  .results-title{
+    margin:0 0 12px;
+    font-size:18px;
+    color:var(--primary-dark);
+  }
+
+  .results{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:12px;
+    margin-top:14px;
+  }
+
+  .item-card{
+    background:#f5f3ff;
+    border:1.5px solid #d8b4fe;
+    border-radius:14px;
+    padding:12px;
+    box-shadow:0 4px 10px rgba(124,58,237,.08);
+  }
+
+  .item-title{
+    font-weight:800;
+    font-size:16px;
+    margin-bottom:8px;
+    color:#1f2937;
+    word-break:break-word;
+  }
+
+  .item-line{
+    font-size:14px;
+    color:#374151;
+    margin-bottom:6px;
+    word-break:break-word;
+  }
+
+  .badge{
+    display:inline-block;
+    background:#ede9fe;
+    color:#5b21b6;
+    border:1px solid #a78bfa;
+    padding:2px 7px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    margin-right:4px;
+  }
+
+  .search-box{
+    width:100%;
+    padding:12px 16px;
+    font-size:15px;
+    font-family:'Kanit', sans-serif;
+    border:1.5px solid #ddd;
+    border-radius:14px;
+    margin-bottom:16px;
+    transition:.2s ease;
+    box-shadow:0 4px 10px rgba(0,0,0,0.03);
+  }
+
+  .gallery{
+    display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:20px;
+  }
+
+  .card-item{
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
+    transition:transform 0.2s;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:4px solid var(--blue);
+  }
+
+  .card-item:hover{
+    transform:translateY(-5px);
+    box-shadow:0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  .icon-container{
+    width:80px;
+    height:80px;
+    background-color:#f8f9fa;
+    border-radius:10px;
+    border:1.5px solid #9ccc9c;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:12px;
+    overflow:hidden;
+    padding:5px;
+  }
+
+  .card-img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
+
+  .info-box{
+    width:100%;
+    text-align:center;
+    margin-bottom:15px;
+  }
+
+  .card-name{
+    font-size:16px;
+    font-weight:700;
+    color:#2c3e50;
+    margin-bottom:4px;
+    line-height:1.2;
+    word-break:break-word;
+  }
+
+  .card-id{
+    font-size:13px;
+    color:#7f8c8d;
+    font-family:monospace;
+    word-break:break-all;
+  }
+
+  .copy-btn{
+    background-color:var(--green);
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    font-family:'Kanit', sans-serif;
+    cursor:pointer;
+    width:100%;
+    transition:0.2s;
+    box-shadow:0 2px 5px rgba(39, 174, 96, 0.3);
+  }
+
+  .copy-btn:hover{
+    background-color:var(--green-dark);
+  }
+
+  .copy-btn.copied{
+    background-color:var(--blue-dark);
+  }
+
+  @media (max-width: 900px){
+    body{
+      padding:14px;
+    }
+    .card{
+      padding:18px;
+    }
+    h1{
+      font-size:24px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <div>
+          <h1>📝 index-page2</h1>
+          <p class="sub">หน้าแยกสำหรับ เรียงName ID และ รายชื่อการ์ด</p>
+        </div>
+
+        <button class="btn btn-secondary" onclick="location.href='index.html'">
+          ⬅ กลับหน้า index
+        </button>
+      </div>
+
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchTab('nameid', this)">📝 เรียงName ID</button>
+        <button class="tab-btn" onclick="switchTab('cardlist', this)">🃏 รายชื่อการ์ด</button>
+      </div>
+
+      <!-- NAME ID SECTION -->
+      <div id="nameidSection">
+        <div class="toolbar">
+          <button class="btn btn-primary" id="copyBtn" onclick="copyOutput()" disabled>📋 Copy Vertical</button>
+          <button class="btn btn-success" onclick="clearAll()">🗑 ล้างค่า</button>
+          <div class="status" id="loadStatus">กำลังโหลดฐานข้อมูล...</div>
+          <div class="copied" id="copyStatus" style="display:none;">✅ คัดลอกแล้ว</div>
+        </div>
+
+        <div class="panel">
+          <label for="inputArea">กรอกชื่อ หรือ ID ทีละบรรทัด</label>
+          <textarea
+            id="inputArea"
+            placeholder="ตัวอย่าง&#10;Golden Dragon Claw x1&#10;dragonclaw_g 2day&#10;Emerald Angel Ring x5 4D"
+            disabled
+          ></textarea>
+          <div class="helper">
+            ตัวอย่างผลลัพธ์: <b>dragonclaw_g_PERIOD2:5</b>
+          </div>
+
+          <div id="notFoundBox" class="notfound"></div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <h3 class="results-title">ผลลัพธ์ที่พบ</h3>
+          <div id="results" class="results"></div>
+        </div>
+
+        <div class="panel" style="margin-top:20px;">
+          <label for="outputArea">Output</label>
+          <textarea id="outputArea" readonly placeholder="ผลลัพธ์จะขึ้นที่นี่"></textarea>
+          <div class="helper">
+            คัดลอกออกไปใช้งานได้เลย แบบ 1 บรรทัด ต่อ 1 รายการ
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD LIST SECTION -->
+      <div id="cardlistSection" class="hidden">
+        <div class="toolbar">
+          <div class="status" id="cardLoadStatus">⏳ กำลังโหลดรายชื่อการ์ด...</div>
+        </div>
+
+        <div class="panel">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-box"
+            placeholder="🔍 ค้นหาด้วยชื่อ หรือ ID ของการ์ด..."
+            oninput="filterCards()"
+            disabled
+          >
+
+          <div class="gallery" id="cardGallery"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let dataList = [];
+    let finalGalleryData = [];
+	const GITHUB_ICON_BASE = "https://raw.githubusercontent.com/nonmig/gaicon/main/images";
+
+function iconNameToGithubUrl(iconName) {
+  if (!iconName) return "";
+  return `${GITHUB_ICON_BASE}/${iconName}.png`;
+}
+
+    const inputArea = document.getElementById('inputArea');
+    const outputArea = document.getElementById('outputArea');
+    const results = document.getElementById('results');
+    const notFoundBox = document.getElementById('notFoundBox');
+    const copyBtn = document.getElementById('copyBtn');
+    const copyStatus = document.getElementById('copyStatus');
+    const loadStatus = document.getElementById('loadStatus');
+    const cardLoadStatus = document.getElementById('cardLoadStatus');
+    const searchInput = document.getElementById('searchInput');
+
+    const targetCardIDs = "10thcard 6wings_remake_card astronaut_card bet_1 bet_2 bet_3 bet_4 bet_5 bet_6 bet_7 bet_8 birthday2019 birthday2020 birthday2021 birthday2022 birthday2023 birthday2024 birthday2025 brithday2008 brithday2018 c1001 c1002 c1003 c1004 c1005 card01 card02 card03 card04 card05 card06 card07 card08 card09 card10 card100 card1001 card1002 card1003 card1004 card1005 card1006 card1007 card1008 card101 card102 card103 card104 card105 card106 card107 card108 card109 card11 card110 card111 card112 card113 card114 card115 card116 card117 card118 card119 card12 card120 card120_evo card121 card122 card123 card124 card125 card126 card127 card128 card129 card13 card130 card131 card132 card132_evo card133 card134 card135 card136 card14 card15 card16 card17 card18 card19 card20 card2009 card2010 card2011 card2012 card2013 card2014 card2015 card2016 card21 card22 card23 card24 card25 card26 card27 card28 card29 card30 card3001 card3002 card3003 card3004 card3005 card3006 card3007 card3008 card3009 card3010 card3011 card3012 card3013 card31 card32 card33 card34 card35 card350 card351 card352 card353 card354 card355 card356 card357 card358 card359 card36 card360 card361 card362 card363 card364 card365 card366 card367 card368 card369 card37 card370 card371 card372 card373 card374 card375 card376 card378 card379 card37_evo card38 card380 card381 card382 card383 card384 card38_evo card39 card39_evo card40 card4001 card4002 card4003 card40_evo card41 card41_evo card56 card57 card57_evo card58 card58_evo card60 card61 card62 card63 card64 card65 card66 card67 card68 card69 card70 card71 card72 card73 card74 card75 card76 card76_evo card77 card78 card79 card80 card81 card82 card83 card84 card85 card86 card87 card88 card89 card90 card91 card92 card93 card94 card95 card96 card97 card98 card99 card_amon card_bcloak_remake card_byakko card_chny2015 card_climber card_daddy2014 card_divine_byakko card_divine_genbu card_divine_seiryu card_divine_suzaku cardeuro2012 card_fanpantae2015 card_fb01 card_fb02 card_fb03 card_fb04 card_genbu cardgsf card_kaminari card_labyrin100 cardmom_2014 cardmvp card_ocean cardrun01 card_seiryu cardshop01 cardshop02 cardshop03 cardshop04 cardshop05 cardshop06 cardshop07 cardshop08 cardshop09 cardshop10 cardshop11 cardshop12 cardshop13 cardshop14 cardshop15 cardshop16 cardshop17 cardshop18 cardshop19 cardshop20 cardshop21 cardshop22 cardshop23 cardshop24 cardshop27 cardshop28 cardshop29 cardshop30 cardshop31 cardshop32 cardshop33 card_skullaxe_gold2 cardstorngitem1 card_summer_2020 card_summer_2021 card_suzaku card_uroboros card_xmas2014_1 card_xmas2014_2 card_xmas2014_3 card_xmas2014_4 card_xmas2014_5 card_xmas2014_6 challenge01 challenge01_evo challenge02 challenge02_evo challenge03 challenge03_evo challenge04 challenge05 challenge06 challenge06_evo challenge07 challenge08 challenge11 challenge12 challenge13 challenge13_evo chinesenewyear2016 fake_birthday2020 fake_birthday2024 fakeflammecard firepower4 fireprotect4 flammecard governor_1 governor_2 governor_3 governor_4 governor_5 governor_6 governor_7 governor_8 halloween2016 hlw2018 huntercard01 huntercard02 huntercard03 huntercard04 huntercard05 huntercard06 huntercard07 huntercard08 huntercard09 huntercard10 legendofgm lifeinsurance losercard01 loykathong2013 loykrathong_2021 material_cut01 material_cut01_1 material_cut01_10 material_cut01_2 material_cut01_3 material_cut01_4 material_cut01_5 material_cut01_6 material_cut01_7 material_cut01_8 material_cut01_9 material_cut01_high material_cut01_random_47 material_cut01_random_58 material_cut01_random_69 material_cut02 material_cut02_1 material_cut02_10 material_cut02_2 material_cut02_3 material_cut02_4 material_cut02_5 material_cut02_6 material_cut02_7 material_cut02_8 material_cut02_9 material_cut02_high material_cut02_random_47 material_cut02_random_58 material_cut02_random_69 material_dark01 material_dark01_1 material_dark01_10 material_dark01_2 material_dark01_3 material_dark01_4 material_dark01_5 material_dark01_6 material_dark01_7 material_dark01_8 material_dark01_9 material_dark01_high material_dark01_random_47 material_dark01_random_58 material_dark01_random_69 material_dark02 material_dark02_1 material_dark02_10 material_dark02_2 material_dark02_3 material_dark02_4 material_dark02_5 material_dark02_6 material_dark02_7 material_dark02_8 material_dark02_9 material_dark02_high material_dark02_random_47 material_dark02_random_58 material_dark02_random_69 material_ele01 material_ele01_1 material_ele01_10 material_ele01_2 material_ele01_3 material_ele01_4 material_ele01_5 material_ele01_6 material_ele01_7 material_ele01_8 material_ele01_9 material_ele01_high material_ele01_random_47 material_ele01_random_58 material_ele01_random_69 material_ele02 material_ele02_1 material_ele02_10 material_ele02_2 material_ele02_3 material_ele02_4 material_ele02_5 material_ele02_6 material_ele02_7 material_ele02_8 material_ele02_9 material_ele02_high material_ele02_random_47 material_ele02_random_58 material_ele02_random_69 material_fire01 material_fire01_1 material_fire01_10 material_fire01_2 material_fire01_3 material_fire01_4 material_fire01_5 material_fire01_6 material_fire01_7 material_fire01_8 material_fire01_9 material_fire01_high material_fire01_random_47 material_fire01_random_58 material_fire01_random_69 material_fire02 material_fire02_1 material_fire02_10 material_fire02_2 material_fire02_3 material_fire02_4 material_fire02_5 material_fire02_6 material_fire02_7 material_fire02_8 material_fire02_9 material_fire02_high material_fire02_random_47 material_fire02_random_58 material_fire02_random_69 material_holy01 material_holy01_1 material_holy01_10 material_holy01_2 material_holy01_3 material_holy01_4 material_holy01_5 material_holy01_6 material_holy01_7 material_holy01_8 material_holy01_9 material_holy01_high material_holy01_random_47 material_holy01_random_58 material_holy01_random_69 material_holy02 material_holy02_1 material_holy02_10 material_holy02_2 material_holy02_3 material_holy02_4 material_holy02_5 material_holy02_6 material_holy02_7 material_holy02_8 material_holy02_9 material_holy02_high material_holy02_random_47 material_holy02_random_58 material_holy02_random_69 material_ice01 material_ice01_1 material_ice01_10 material_ice01_2 material_ice01_3 material_ice01_4 material_ice01_5 material_ice01_6 material_ice01_7 material_ice01_8 material_ice01_9 material_ice01_high material_ice01_random_47 material_ice01_random_58 material_ice01_random_69 material_ice02 material_ice02_1 material_ice02_10 material_ice02_2 material_ice02_3 material_ice02_4 material_ice02_5 material_ice02_6 material_ice02_7 material_ice02_8 material_ice02_9 material_ice02_high material_ice02_random_47 material_ice02_random_58 material_ice02_random_69 mole_digger mole_digger_fake mother2011_1 mother2011_2 neiger01card neiger02card neiger03card neiger04card neiger05card neiger06card neiger07card neiger08card neiger09card neiger10card neiger11card neiger12card nobel_aid satan_g_card slot_accs specialneiger sub_card_bob sub_card_bubble1 sub_card_bubble2 sub_card_dragon_blue sub_card_etaros sub_card_gold sub_card_heart1 sub_card_heart2 sub_card_note1 sub_card_note2 sub_card_random_1 sub_card_random_2 sub_card_rousi sub_card_saintthunder_b sub_card_saintthunder_r sub_card_space sub_card_star1 sub_card_star2 sub_card_swarm sub_card_xmas summer_2022 summer_2022_fake summercard01 thaizonecard worldcupLv4 worldcupLv5 xmas2018 zoocard".split(' ');
+
+    function switchTab(tab, el) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      el.classList.add('active');
+
+      document.getElementById('nameidSection').classList.toggle('hidden', tab !== 'nameid');
+      document.getElementById('cardlistSection').classList.toggle('hidden', tab !== 'cardlist');
+    }
+
+    function cleanInput(text) {
+      if (!text) return '';
+      text = text.replace(/\s*x\s*\d+/gi, '');
+      text = text.replace(/_PERIOD\d+/gi, '');
+      text = text.replace(/:\d+/g, '');
+      text = text.replace(/\b\d+\s*(d|day|days)\b/gi, '');
+      return text.trim();
+    }
+
+    function parseModifiers(rawLine) {
+      const lower = rawLine.toLowerCase();
+
+      let quantity = null;
+      const matchX = lower.match(/x\s*(\d+)/i);
+      if (matchX) {
+        quantity = parseInt(matchX[1], 10);
+      } else {
+        const endNum = lower.match(/(\d+)\s*$/);
+        if (endNum && !lower.match(/(\d+)\s*(d|day|days)\s*$/i)) {
+          quantity = parseInt(endNum[1], 10);
+        }
+      }
+
+      let period = null;
+      const matchDay = lower.match(/(\d+)\s*(d|day|days)/i);
+      if (matchDay) {
+        period = parseInt(matchDay[1], 10);
+      }
+
+      return { quantity, period };
+    }
+
+    function buildFinalId(baseId, mods) {
+      let out = baseId;
+      if (mods.period) out += `_PERIOD${mods.period}`;
+      if (mods.quantity) out += `:${mods.quantity}`;
+      return out;
+    }
+
+    function findItem(query) {
+      if (!query) return null;
+      const cleanedQuery = cleanInput(query.toLowerCase());
+
+      return dataList.find(item => {
+        const idClean = cleanInput((item.idname || '').toLowerCase());
+        const nameClean = cleanInput((item.name || '').toLowerCase());
+        return idClean === cleanedQuery || nameClean === cleanedQuery;
+      }) || null;
+    }
+
+    function renderResults() {
+      results.innerHTML = '';
+      outputArea.value = '';
+      notFoundBox.style.display = 'none';
+      notFoundBox.textContent = '';
+      copyBtn.disabled = true;
+
+      const lines = inputArea.value
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      if (!lines.length) return;
+
+      const outputLines = [];
+      const notFound = [];
+
+      lines.forEach(rawLine => {
+        const found = findItem(rawLine);
+        const mods = parseModifiers(rawLine);
+
+        if (!found) {
+          notFound.push(rawLine);
+          return;
+        }
+
+        const finalId = buildFinalId(found.idname, mods);
+        outputLines.push(finalId);
+
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="item-title">${escapeHtml(found.name)}</div>
+          <div class="item-line"><span class="badge">ID</span>${escapeHtml(found.idname)}</div>
+          <div class="item-line"><span class="badge">Final</span>${escapeHtml(finalId)}</div>
+        `;
+        results.appendChild(card);
+      });
+
+      if (outputLines.length) {
+        outputArea.value = outputLines.join('\n');
+        copyBtn.disabled = false;
+      }
+
+      if (notFound.length) {
+        notFoundBox.textContent = 'Not found:\n- ' + notFound.join('\n- ');
+        notFoundBox.style.display = 'block';
+      }
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function debounce(fn, delay) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+      };
+    }
+
+    const debouncedRender = debounce(renderResults, 200);
+    inputArea.addEventListener('input', debouncedRender);
+
+    function copyOutput() {
+      if (!outputArea.value) return;
+      navigator.clipboard.writeText(outputArea.value).then(() => {
+        copyStatus.style.display = 'inline';
+        const oldText = copyBtn.textContent;
+        copyBtn.textContent = '✅ Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = oldText;
+          copyStatus.style.display = 'none';
+        }, 1400);
+      });
+    }
+
+    function clearAll() {
+      inputArea.value = '';
+      outputArea.value = '';
+      results.innerHTML = '';
+      notFoundBox.style.display = 'none';
+      notFoundBox.textContent = '';
+      copyBtn.disabled = true;
+      copyStatus.style.display = 'none';
+    }
+
+    function setReadyStatus(message) {
+      loadStatus.textContent = message;
+      inputArea.disabled = false;
+    }
+
+    function extractIconName(texPath) {
+      if (!texPath) return null;
+      const regex = /\/([^\/]+)\.tex$/;
+      const match = texPath.match(regex);
+      return match ? match[1] : null;
+    }
+
+    function renderGallery(filterText = '') {
+      const gallery = document.getElementById('cardGallery');
+      gallery.innerHTML = '';
+
+      const filteredCards = finalGalleryData.filter(item =>
+        item.id.toLowerCase().includes(filterText.toLowerCase()) ||
+        item.name.toLowerCase().includes(filterText.toLowerCase())
+      );
+
+      filteredCards.forEach(item => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card-item';
+
+        const safeId = String(item.id).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+        cardDiv.innerHTML = `
+          <div class="icon-container">
+            <img
+  src="${iconNameToGithubUrl(item.icon)}"
+  class="card-img"
+  alt="Icon"
+  loading="lazy"
+  onerror="this.src=''; this.alt='ไม่มีรูปภาพ';"
+>
+          </div>
+
+          <div class="info-box">
+            <div class="card-name">${escapeHtml(item.name)}</div>
+            <div class="card-id">${escapeHtml(item.id)}</div>
+          </div>
+
+          <button class="copy-btn" onclick="copyToClipboard(this, '${safeId}')">📋 Copy ID</button>
+        `;
+        gallery.appendChild(cardDiv);
+      });
+    }
+
+    function filterCards() {
+      renderGallery(searchInput.value);
+    }
+
+    function copyToClipboard(button, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.innerHTML;
+        button.innerHTML = "✅ คัดลอกแล้ว!";
+        button.classList.add("copied");
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.classList.remove("copied");
+        }, 1500);
+      });
+    }
+
+    function loadDataFromAPI() {
+      loadStatus.textContent = 'กำลังโหลดฐานข้อมูล...';
+      cardLoadStatus.textContent = '⏳ กำลังโหลดรายชื่อการ์ด...';
+      inputArea.disabled = true;
+      searchInput.disabled = true;
+
+      fetch('https://api.sheety.co/304cd54879bb0d906b2be84eef9c4a75/dataGaIcon/sheet')
+        .then(res => res.json())
+        .then(data => {
+          if (data && Array.isArray(data.sheet)) {
+            dataList = data.sheet
+              .filter(item => item.idname && item.name)
+              .map(item => ({
+                idname: String(item.idname),
+                name: String(item.name),
+                tex: item.tex ? String(item.tex) : ''
+              }));
+
+            finalGalleryData = targetCardIDs.map(targetId => {
+              const foundItem = data.sheet.find(item =>
+                item.idname && item.idname.toLowerCase() === targetId.toLowerCase()
+              );
+
+              if (foundItem) {
+                return {
+                  id: String(foundItem.idname),
+                  name: String(foundItem.name),
+                  icon: extractIconName(foundItem.tex) || String(foundItem.idname)
+                };
+              }
+
+              return {
+                id: targetId,
+                name: targetId.replace(/_/g, ' ').toUpperCase(),
+                icon: targetId
+              };
+            });
+
+            setReadyStatus(`พร้อมใช้งานแล้ว (${dataList.length} รายการ)`);
+            cardLoadStatus.textContent = `✅ โหลดรายชื่อการ์ดสำเร็จ ${finalGalleryData.length} ใบ`;
+            searchInput.disabled = false;
+
+            renderResults();
+            renderGallery();
+          } else {
+            loadStatus.textContent = 'ไม่พบข้อมูลที่ถูกต้องจาก API';
+            cardLoadStatus.textContent = '❌ ไม่พบข้อมูลการ์ดจาก API';
+            inputArea.disabled = true;
+            searchInput.disabled = true;
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          loadStatus.textContent = 'โหลด API ไม่สำเร็จ';
+          cardLoadStatus.textContent = '❌ เกิดข้อผิดพลาดในการโหลดข้อมูลการ์ด';
+          inputArea.disabled = true;
+          searchInput.disabled = true;
+        });
+    }
+
+    loadDataFromAPI();
+  </script>
+</body>
+</html>

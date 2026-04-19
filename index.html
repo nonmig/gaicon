@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Game Config Generator - Master Final V21.8</title>
+<style>
+    :root {
+        --primary: #2563eb; --bg-body: #f3f4f6; --bg-card: #ffffff;
+        --text-main: #1f2937; --text-label: #4b5563; --border-color: #d1d5db;
+        --accent: #059669; --output-bg: #111827;
+    }
+    body { font-family: 'Segoe UI', 'Kanit', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; padding: 20px; margin: 0; }
+    .container { background: var(--bg-card); padding: 30px; border-radius: 16px; width: 100%; max-width: 1150px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    h2 { text-align: center; color: var(--primary); margin-bottom: 20px; font-weight: 800; }
+
+    .catrow, .subrow { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .catbtn, .subbtn { flex: 1; padding: 10px; text-align: center; background: #f9fafb; border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; transition: 0.2s; font-size: 14px; font-weight: 600; color: var(--text-label); }
+    .catbtn:hover, .subbtn:hover { background: #f3f4f6; border-color: var(--primary); }
+    .catbtn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .subbtn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    label { display: block; margin-top: 12px; font-size: 12px; color: var(--text-label); font-weight: 700; text-transform: uppercase; }
+    input, textarea { width: 100%; padding: 10px; margin: 4px 0; border-radius: 8px; border: 1px solid var(--border-color); background: #fff; color: var(--text-main); box-sizing: border-box; font-size: 14px; }
+    input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+    
+    #output { height: 450px; background: var(--output-bg); color: #10b981; border: none; padding: 20px; font-size: 14px; line-height: 1.6; border-radius: 12px; width: 100%; resize: none; font-family: 'Consolas', monospace; }
+
+    .note-container { display: flex; gap: 8px; align-items: center; }
+    .btn-save-note { background: #f59e0b; border: none; border-radius: 8px; color: #fff; padding: 0 15px; height: 38px; cursor: pointer; font-weight: bold; }
+    .save-success { color: #059669; font-weight: bold; display: none; font-size: 18px; }
+
+    .action-header { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; margin-bottom: 5px; }
+    .load-btn { width: 100%; padding: 12px; background: #6b7280; border: none; border-radius: 10px; color: white; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+    .copy-btn { padding: 8px 25px; background: var(--primary); border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold; }
+    .copy-status { color: var(--accent); font-size: 12px; font-weight: bold; margin-top: 5px; display: none; }
+
+    .lotto-table { width: 100%; border-collapse: collapse; display: block; max-height: 450px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; margin-top:10px;}
+    .lotto-table thead { position: sticky; top: 0; background: #eee; z-index: 10; }
+    .lotto-table th, .lotto-table td { border: 1px solid var(--border-color); padding: 2px; }
+    .lotto-table input { width: 100%; border: none; padding: 8px; box-sizing: border-box; outline: none; background: transparent; font-size: 13px; }
+    .col-idx { width: 40px; text-align: center; background: #f9fafb; color: #999; font-size: 11px; }
+    .col-action { width: 60px; text-align: center; }
+    .btn-act { border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 11px; font-weight: bold; margin: 0 1px; }
+    .btn-ins { background: #dcfce7; color: #166534; }
+    .btn-del { background: #fee2e2; color: #991b1b; }
+    .col-icon-img { width: 45px; text-align: center; background: #fff; }
+    .col-icon-img img { max-width: 32px; max-height: 32px; border-radius: 4px; display: none; }
+    .col-name-lotto { background: #f0fdf4; width: 220px; font-weight: bold; }
+
+    .preset-row { display: flex; gap: 5px; margin-bottom: 10px; }
+    .preset-btn { flex: 1; padding: 10px; font-size: 11px; background: #4b5563; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight:bold; }
+    .reset-btn { background: #dc2626; color: white; padding: 0 15px; border-radius: 5px; cursor: pointer; font-weight:bold; border:none; }
+
+    #iconInputArea { font-size: 18px; height: 180px; padding: 15px; border: 2px solid var(--primary); }
+    #iconResults { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; border: 1.5px solid #ddd; padding: 20px; background: #fafafa; border-radius: 12px; }
+    .icon-card { display: flex; flex-direction: column; align-items: center; width: 175px; background: #dff0d8; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .icon-card img { max-width: 125px; border: 1px solid #9ccc9c; border-radius: 8px; background: white; margin-bottom: 10px; }
+    .icon-idname { font-weight: 800; color: #2c3e50; font-size: 16px; width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; }
+    .icon-name { color: #3d5a40; font-size: 14px; margin-bottom: 8px; text-align: center; font-weight: 600; }
+    .icon-special-name { font-style: italic; color: #6a8f6a; font-size: 12px; margin-top: 4px; }
+    .icon-copy-btn { background: #4CAF50; color: white; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; }
+
+    #splitterInput { font-size: 16px; height: 250px; padding: 15px; border: 2px solid var(--primary); }
+    #splitterPreview { margin-top: 10px; background: #111827; color: #10b981; padding: 15px; border-radius: 8px; max-height: 400px; overflow-y: auto; font-family: 'Consolas', monospace; font-size: 13px; white-space: pre-wrap; display: none; }
+
+    .hidden { display: none !important; }
+    .sub-label { font-size: 10px; color: #9ca3af; margin-bottom: -2px; display: block; font-weight: bold; }
+    .vertical-fields div { margin-bottom: 10px; }
+    .id-hint { color: #dc2626; font-size: 10px; font-weight: bold; margin-left: 10px; text-transform: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Game Config Generator</h2>
+<button class="copy-btn" onclick="location.href='index-page2.html'">
+  ➡️ ไปหน้า Page 2
+</button>
+
+    <div class="catrow">
+        <div class="catbtn" onclick="switchTab('coupon', this)">Coupon</div>
+        <div class="catbtn" onclick="switchTab('etcitem', this)">Etcitem</div>
+        <div class="catbtn" onclick="switchTab('newcombine', this)">NewCombine</div>
+        <div class="catbtn" onclick="switchTab('collection', this)">Collection</div>
+        <div class="catbtn" onclick="switchTab('card', this)">Card</div>
+        <div class="catbtn" onclick="switchTab('lotto', this)" style="background:#dc2626; color:white;">🎰 Lotto</div>
+        <div class="catbtn" onclick="switchTab('splitter', this)" style="background:#4b5563; color:white;">✂️ Splitter</div>
+        <div class="catbtn" onclick="switchTab('gaicon', this)" style="background:#059669; color:white;">🔍 GA Icon</div>
+    </div>
+
+    <div id="etcsub" class="subrow hidden"><div class="subbtn" onclick="switchSub('box', this)">📦 Box</div><div class="subbtn" onclick="switchSub('gashapon', this)">🎰 Gashapon</div></div>
+    <div id="cardsub" class="subrow hidden"><div class="subbtn" onclick="switchSub('card', this)">🃏 Card Item</div><div class="subbtn" onclick="switchSub('effect', this)">✨ Effect Stat</div></div>
+
+    <button id="mainLoadBtn" class="load-btn" onclick="loadExample()">⚡ Load Example Data</button>
+    <div id="status" style="font-size:11px; color:var(--primary); margin-bottom:5px;">กำลังโหลดฐานข้อมูล...</div>
+
+    <div id="mainForm">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+            <div><label>1. Current Number (ID)</label><input id="number" oninput="updateData()"></div>
+            <div><label>📌 Last Used Number</label><div class="note-container"><input id="lastnote" oninput="saveNote()"><button class="btn-save-note" onclick="saveNote()">SAVE</button><span id="saveCheck" class="save-success">✅</span></div></div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+            <div><label>ID String <span id="idHint" class="id-hint hidden">⚠️ treasurebox_ , cp_ , cc_ , em_</span></label><input id="id" oninput="updateData()"></div>
+            <div id="nameWrapper"><label>Item Name</label><input id="name" oninput="updateData()"></div>
+        </div>
+        <div id="commonFields"><label>Icon Path</label><input id="icon" oninput="updateData()"><label>Description (\n = New Line)</label><textarea id="desc" oninput="updateData()"></textarea></div>
+
+        <div id="gashaponExtra" class="hidden vertical-fields"><label>Gashapon Settings</label><div><span class="sub-label">neednum</span><input id="neednum" oninput="updateData()"></div><div><span class="sub-label">bonusnum</span><input id="bonusnum" oninput="updateData()"></div><div><span class="sub-label">meter</span><input id="meter" oninput="updateData()"></div></div>
+        <div id="combineExtra" class="hidden vertical-fields"><label>Combine Settings</label><div><span class="sub-label">mate</span><input id="mate" oninput="updateData()"></div><div><span class="sub-label">prize</span><input id="cprize" oninput="updateData()"></div><div><span class="sub-label">ratio</span><input id="ratio" oninput="updateData()"></div><div><span class="sub-label">dupindex</span><input id="dupindex" oninput="updateData()"></div><div><span class="sub-label">announce</span><input id="announce" oninput="updateData()"></div></div>
+        <div id="collectionExtra" class="hidden vertical-fields"><label>Collection Details</label><div><span class="sub-label">level</span><input id="level" oninput="updateData()"></div><div><span class="sub-label">list</span><input id="list" oninput="updateData()"></div><div><span class="sub-label">condition</span><input id="condition" oninput="updateData()"></div><div><span class="sub-label">prize</span><input id="cprize_col" oninput="updateData()"></div></div>
+        <div id="cardExtra" class="hidden vertical-fields"><label>Card Connect</label><div><span class="sub-label">effect id</span><input id="effectid" oninput="updateData()"></div><div><span class="sub-label">chance</span><input id="effectchance" oninput="updateData()"></div></div>
+        <div id="effectExtra" class="hidden"><label>Stats (STR TEC SPD JMP DEF SIZE:Auto)</label><div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px;"><input id="str" value="0" oninput="updateData()"><input id="tec" value="0" oninput="updateData()"><input id="spd" value="0" oninput="updateData()"><input id="jmp" value="0" oninput="updateData()"><input id="def" value="0" oninput="updateData()"></div><label>Other Stats</label><div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; margin-top:5px;"><input id="hp" value="0" oninput="updateData()"><input id="mp" value="0" oninput="updateData()"><input id="cutreg" value="0" oninput="updateData()"><input id="firereg" value="0" oninput="updateData()"><input id="icereg" value="0" oninput="updateData()"><input id="elecreg" value="0" oninput="updateData()"><input id="cutatk" value="0" oninput="updateData()"><input id="fireatk" value="0" oninput="updateData()"><input id="iceatk" value="0" oninput="updateData()"><input id="elecatk" value="0" oninput="updateData()"><input id="holyreg" value="0" oninput="updateData()"><input id="darkreg" value="0" oninput="updateData()"><input id="holyatk" value="0" oninput="updateData()"><input id="darkatk" value="0" oninput="updateData()"></div></div>
+    </div>
+
+    <div id="lottoSection" class="hidden">
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:15px; margin-bottom: 10px;">
+            <div>
+                <label style="color:#dc2626;">⭐ Gashapon Name</label>
+                <input id="gashaName" placeholder="oracle_event..." oninput="generate()">
+            </div>
+
+            <div>
+                <label style="color:#059669;">📋 dupindex</label>
+                <input id="gashaDupIndex" placeholder="ใส่เลข" oninput="generate(); updateDupindexPreview()">
+
+                <div id="dupPreviewWrap" style="margin-top:10px; display:none;">
+                    <div style="font-size:12px; color:#6b7280; margin-bottom:6px;">
+                        Row #<span id="dupPreviewIndex"></span>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1.2fr 1.6fr 70px; gap:8px;">
+                        <div style="border:1px solid #d1d5db; background:#f9fafb; border-radius:8px; padding:8px;">
+                            <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">ID String</div>
+                            <div id="dupPreviewId" style="font-size:12px; font-weight:600; color:#111827; word-break:break-all;">-</div>
+                        </div>
+
+                        <div style="border:1px solid #d1d5db; background:#f9fafb; border-radius:8px; padding:8px;">
+                            <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">Name</div>
+                            <div id="dupPreviewName" style="font-size:12px; color:#111827; word-break:break-word;">-</div>
+                        </div>
+
+                        <div style="border:1px solid #d1d5db; background:#f9fafb; border-radius:8px; padding:8px; text-align:center;">
+                            <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">Icon</div>
+                            <img id="dupPreviewImg" src="" style="width:40px; height:40px; object-fit:contain; display:none; margin:auto;">
+                            <div id="dupPreviewNoImg" style="font-size:11px; color:#9ca3af;">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preset-row"><button class="preset-btn" onclick="loadLottoPreset('epic')">🔴 Epic</button><button class="preset-btn" onclick="loadLottoPreset('amped')">🔵 Amped</button><button class="preset-btn" onclick="loadLottoPreset('lotto')">🟢 Lotto</button><button class="preset-btn" onclick="loadLottoPreset('activity')">🟠 Activity</button><button class="reset-btn" onclick="resetLottoTableSilent()">🗑️ RESET</button></div>
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px; margin-bottom:10px; background:#fff3cd; padding:15px; border-radius:10px; border:1px solid #ffeeba;">
+            <div><label>Suffix</label><input id="medalTxt" placeholder="medal2:1" oninput="generate()"></div>
+            <div><label>ข้ามแถวแรก</label><input id="medalSkipCount" type="number" value="5" min="0" oninput="generate()"></div>
+        </div>
+        <table class="lotto-table"><thead><tr><th class="col-idx">#</th><th class="col-action">Manage</th><th>ID String (Excel Paste)</th><th class="col-name-lotto">Name</th><th class="col-icon-img">Icon</th><th>Ratio (Sum: <span id="ratioSum">0</span>)</th></tr></thead><tbody id="lottoBody"></tbody></table>
+    </div>
+
+    <div id="gaiconSection" class="hidden"><label style="font-size:16px;">🔍 กรอก ID หรือ ชื่อไอเทม ทีละบรรทัด (กรองรายการซ้ำด้วย ID):</label><textarea id="iconInputArea" placeholder="คัดลอก ID มาแปะที่นี่..." oninput="searchIcons()"></textarea><div id="iconResults"></div></div>
+    <div id="splitterSection" class="hidden"><label style="font-size:16px;">✂️ แปะข้อความที่คั่นด้วยลูกน้ำ (ID1,ID2...):</label><textarea id="splitterInput" placeholder="d_arm,plasmash,naginata..." oninput="processSplitter()"></textarea><div style="margin-top:15px;"><button class="preset-btn" style="background:var(--primary); width:250px;" onclick="copySplitter()">📋 Copy Vertical (TSV)</button><button class="reset-btn" onclick="resetSplitter()">ล้างค่า</button><div id="splitStatus" class="copy-status">✅ คัดลอกแนวดิ่งเรียบร้อย!</div></div><label id="splitterPreviewLabel" style="display:none;">2. ตัวอย่างแนวดิ่ง (Preview)</label><div id="splitterPreview"></div></div>
+
+    <div class="action-header" id="outputHeader">
+        <span style="font-weight:bold; color:var(--primary); font-size: 14px;">Output Preview</span>
+        <div style="text-align:right;"><button class="copy-btn" onclick="copyOutput()">📋 Copy Config</button><div id="outStatus" class="copy-status">✅ คัดลอกเรียบร้อย!</div></div>
+    </div>
+    <textarea id="output" readonly></textarea>
+</div>
+
+<script>
+let currentCat = "etcitem"; let currentSub = "box"; let dataList = []; let tabData = {};
+let notes = JSON.parse(localStorage.getItem("game_tool_notes_v21.8") || "{}");
+
+const lottoBody = document.getElementById('lottoBody');
+for (let i = 0; i < 200; i++) {
+    const tr = document.createElement('tr'); tr.id = `lotto-row-${i}`;
+    tr.innerHTML = `<td class="col-idx">${i}</td><td class="col-action"><button class="btn-act btn-ins" onclick="insertRow(${i})">+</button><button class="btn-act btn-del" onclick="deleteRow(${i})">x</button></td><td><input type="text" class="lotto-id" onpaste="handlePaste(event, ${i}, 'id')" oninput="handleLottoLookup(${i}, 'id')"></td><td class="col-name-lotto"><input type="text" class="lotto-name-disp" oninput="handleLottoLookup(${i}, 'name')"></td><td class="col-icon-img"><img src="" class="lotto-img-preview"></td><td><input type="text" class="lotto-ratio" onpaste="handlePaste(event, ${i}, 'ratio')" oninput="generate()"></td>`;
+    lottoBody.appendChild(tr);
+}
+
+function loadItems() { fetch('https://api.sheety.co/304cd54879bb0d906b2be84eef9c4a75/dataGaIcon/sheet').then(res => res.json()).then(data => { dataList = data.sheet || []; document.getElementById('status').textContent = `✅ ฐานข้อมูลพร้อมใช้งาน`; }); }
+
+async function searchIcons() {
+    const resultsDiv = document.getElementById('iconResults'); resultsDiv.innerHTML = '';
+    const rawLines = document.getElementById('iconInputArea').value.split('\n').map(l => l.trim()).filter(l => l !== "");
+    const shownIds = new Set();
+    for (const line of rawLines) {
+        const clean = line.replace(/\s*x\s*\d+|:.*|_PERIOD.*/gi, '').toLowerCase();
+        const found = dataList.find(d => (d.idname||"").toLowerCase() === clean || (d.name||"").toLowerCase() === clean);
+        if (found && !shownIds.has(found.idname.toLowerCase())) {
+            shownIds.add(found.idname.toLowerCase());
+            const special = (found.name || "")
+    .toLowerCase()
+    .replace(/'/g, '')
+    .replace(/\s+/g, '-');
+            const iconName = found.tex ? found.tex.split('/').pop().replace('.tex', '') : "";
+            const div = document.createElement('div'); div.className = 'icon-card';
+            div.innerHTML = `<img src="./images/${iconName}.png" onerror="this.style.display='none'"><div class="icon-idname">${found.idname}</div><div class="icon-name">${found.name}</div><button class="icon-copy-btn" onclick="navigator.clipboard.writeText('${special}'); this.innerText='✅ Copied!'; setTimeout(()=>this.innerText='Copy Link Name',1500)">Copy Link Name</button><div class="icon-special-name">${special}</div>`;
+            resultsDiv.appendChild(div);
+        }
+    }
+}
+
+function switchTab(cat, el) {
+    currentCat = cat; const isS = (cat === 'lotto' || cat === 'splitter' || cat === 'gaicon');
+    if (cat === 'etcitem') currentSub = 'box'; else if (cat === 'card') currentSub = 'card'; else if (!isS) currentSub = '';
+    document.querySelectorAll(".catbtn").forEach(b => b.classList.remove("active")); el.classList.add("active");
+    document.getElementById('mainForm').classList.toggle('hidden', isS);
+    document.getElementById('lottoSection').classList.toggle('hidden', cat !== 'lotto');
+    document.getElementById('splitterSection').classList.toggle('hidden', cat !== 'splitter');
+    document.getElementById('gaiconSection').classList.toggle('hidden', cat !== 'gaicon');
+    document.getElementById('mainLoadBtn').classList.toggle('hidden', isS);
+    document.getElementById('output').classList.toggle('hidden', cat === 'splitter' || cat === 'gaicon');
+    document.getElementById('outputHeader').classList.toggle('hidden', cat === 'splitter' || cat === 'gaicon');
+    document.getElementById('idHint').classList.toggle('hidden', cat !== 'etcitem');
+    etcsub.classList.toggle("hidden", cat !== "etcitem"); cardsub.classList.toggle("hidden", cat !== "card");
+    let k = currentCat + (currentSub ? "_" + currentSub : ""); document.getElementById('lastnote').value = notes[k] || "";
+    showExtra(); generate(); updateDupindexPreview();
+}
+
+function switchSub(s, el) { currentSub = s; document.querySelectorAll(".subbtn").forEach(b => b.classList.toggle("active", b.innerText.toLowerCase().includes(s))); let k = currentCat + (currentSub ? "_" + currentSub : ""); document.getElementById('lastnote').value = notes[k] || ""; showExtra(); generate(); }
+
+function showExtra() {
+    if (currentCat === 'lotto' || currentCat === 'splitter' || currentCat === 'gaicon') return;
+    const isE = (currentCat === "card" && currentSub === "effect");
+    document.getElementById('commonFields').classList.toggle('hidden', isE);
+    document.getElementById('nameWrapper').classList.toggle('hidden', isE);
+    gashaponExtra.classList.toggle("hidden", !(currentCat == "etcitem" && currentSub == "gashapon"));
+    combineExtra.classList.toggle("hidden", currentCat != "newcombine");
+    collectionExtra.classList.toggle("hidden", currentCat != "collection");
+    cardExtra.classList.toggle("hidden", !(currentCat == "card" && currentSub == "card"));
+    effectExtra.classList.toggle("hidden", !isE);
+}
+
+function updateDupindexPreview() {
+    const raw = document.getElementById('gashaDupIndex')?.value.trim() || "";
+    const wrap = document.getElementById('dupPreviewWrap');
+    const idxText = document.getElementById('dupPreviewIndex');
+    const idText = document.getElementById('dupPreviewId');
+    const nameText = document.getElementById('dupPreviewName');
+    const img = document.getElementById('dupPreviewImg');
+    const noImg = document.getElementById('dupPreviewNoImg');
+
+    if (!wrap || !idxText || !idText || !nameText || !img || !noImg) return;
+
+    if (currentCat !== 'lotto') {
+        wrap.style.display = "none";
+        return;
+    }
+
+    if (raw === "") {
+        wrap.style.display = "none";
+        return;
+    }
+
+    const idx = parseInt(raw, 10);
+    const ids = document.querySelectorAll('.lotto-id');
+    const names = document.querySelectorAll('.lotto-name-disp');
+    const imgs = document.querySelectorAll('.lotto-img-preview');
+
+    wrap.style.display = "block";
+
+    if (isNaN(idx) || idx < 0 || idx >= ids.length) {
+        idxText.textContent = raw;
+        idText.textContent = "ไม่พบแถวนี้";
+        nameText.textContent = "-";
+        img.style.display = "none";
+        noImg.style.display = "block";
+        return;
+    }
+
+    const idVal = ids[idx]?.value?.trim() || "-";
+    const nameVal = names[idx]?.value?.trim() || "-";
+    const rowImg = imgs[idx];
+
+    idxText.textContent = idx;
+    idText.textContent = idVal;
+    nameText.textContent = nameVal;
+
+    if (rowImg && rowImg.src && rowImg.style.display !== "none") {
+        img.src = rowImg.src;
+        img.style.display = "block";
+        noImg.style.display = "none";
+        img.onerror = () => {
+            img.style.display = "none";
+            noImg.style.display = "block";
+        };
+    } else {
+        img.style.display = "none";
+        noImg.style.display = "block";
+    }
+}
+
+function generate() {
+    let out = ""; const getV = (i) => document.getElementById(i).value; const fixI = (p) => (p && !p.startsWith("/")) ? "/" + p : p;
+    if (currentCat === 'lotto') {
+        const gName = document.getElementById('gashaName').value || "oracle_event";
+        const dIdx = document.getElementById('gashaDupIndex').value || "";
+        const suffix = document.getElementById('medalTxt').value.trim() ? "+" + document.getElementById('medalTxt').value.trim() : "";
+        const skip = parseInt(document.getElementById('medalSkipCount').value) || 0;
+        let nIds = [], sIds = [], ras = [], sum = 0;
+        document.querySelectorAll('.lotto-id').forEach((inp, i) => {
+            const v = inp.value.trim(); if (v && !v.includes("---")) { nIds.push(v); if (i < skip) sIds.push(v); else sIds.push(v + suffix); const rv = parseFloat(document.querySelectorAll('.lotto-ratio')[i].value) || 0; ras.push(rv); sum += rv; }
+        });
+        document.getElementById('ratioSum').textContent = sum.toFixed(3);
+        out = `property.id=${sIds.join(',')}\nproperty.dupindex=${dIdx}\n\n# ITEM RATIO\nproperty.ratio=${ras.join(',')}\n\n# ANNOUNCE\nproperty.announce=0,1,2,3\n\n# MESSAGE\nproperty.message=ได้รับไอเทม [ %s ]!\n\n\n///////////////////////////////////////////////////////////////\n\n${gName}.prizelist=${nIds.join(',')}\n${gName}.graded=true\n${gName}.graded.border=0,1,2,3,4\n\n${gName}_meter.count=10,50,100,150,200,301\n${gName}_meter.prize=medal_ga2:1,medal_ga2:2,medal_ga2:3,5000rm,card_kaminari:1,sacc_bt_red+sub_card_saintthunder_r:1\n${gName}_meter.noloop=true`;
+    } else if (currentCat !== 'splitter' && currentCat !== 'gaicon') {
+        const num = getV('number') || "X"; const n = getV('name') || ""; const idV = getV('id'); const d = getV('desc').replace(/\n/g, "\\n");
+        if (currentCat=="coupon") out=`coupon${num}.id=${idV}\ncoupon${num}.name=${n}\ncoupon${num}.icon=${fixI(getV('icon'))}\ncoupon${num}.desc=${d}\ncoupon${num}.type=5\ncoupon${num}.value=0\ncoupon${num}.period=40`;
+        else if (currentCat=="etcitem") { out=`etcitem${num}.id=${idV}\netcitem${num}.name=${n}\netcitem${num}.icon=${fixI(getV('icon'))}\netcitem${num}.desc=${d}`; if (currentSub=="gashapon") out+=`\netcitem${num}.neednum=${getV('neednum')}\netcitem${num}.bonusnum=${getV('bonusnum')}\netcitem${num}.meter=${getV('meter')}`; }
+        else if (currentCat=="newcombine") out=`newcombine${num}.id=${idV}\nnewcombine${num}.name=${n}\nnewcombine${num}.icon=${fixI(getV('icon'))}\nnewcombine${num}.desc=${d}\nnewcombine${num}.mate=${getV('mate')}\nnewcombine${num}.prize=${getV('cprize')}\nnewcombine${num}.ratio=${getV('ratio')}\nnewcombine${num}.dupindex=${getV('dupindex')}\nnewcombine${num}.announce=${getV('announce')}`;
+        else if (currentCat=="collection") out=`collection${num}.id=${idV}\ncollection${num}.name=${n}\ncollection${num}.icon=${fixI(getV('icon'))}\ncollection${num}.desc=${d}\ncollection${num}.level=${getV('level')}\ncollection${num}.list=${getV('list')}\ncollection${num}.condition=${getV('condition')}\ncollection${num}.prize=${getV('cprize_col')}`;
+        else if (currentCat=="card") { if(currentSub=="card") out=`card${num}.id=${idV}\ncard${num}.name=${n}\ncard${num}.icon=${fixI(getV('icon'))}\ncard${num}.desc=${d}\ncard${num}.effect=${getV('effectid')}:${getV('effectchance')}`; 
+            else out=`effect${num}.id=${idV}\neffect${num}.amount=${getV('str')},${getV('tec')},${getV('spd')},${getV('jmp')},${getV('def')},1\neffect${num}.amount2=${getV('hp')},${getV('mp')},${getV('cutreg')},${getV('firereg')},${getV('icereg')},${getV('elecreg')},${getV('cutatk')},${getV('fireatk')},${getV('iceatk')},${getV('elecatk')}\neffect${num}.amount3=${getV('holyreg')},${getV('darkreg')},${getV('holyatk')},${getV('darkatk')}`; }
+    }
+    document.getElementById('output').value = out;
+}
+
+function handleLottoLookup(idx, type) {
+    const rId = document.querySelectorAll('.lotto-id')[idx];
+    const rName = document.querySelectorAll('.lotto-name-disp')[idx];
+    const rImg = document.querySelectorAll('.lotto-img-preview')[idx];
+    if(!rId) return;
+
+    const val = (type==='id'?rId.value:rName.value).replace(/\s*x\s*\d+|:.*|_PERIOD.*/gi,'').trim().toLowerCase();
+
+    if (val) {
+        const f = dataList.find(d => ((type==='id'?d.idname:d.name)||"").toLowerCase() === val);
+        if (f) {
+            if(type==='id') rName.value = f.name;
+            else rId.value = f.idname;
+            if(f.tex){
+                const i = f.tex.split('/').pop().replace('.tex','');
+                rImg.src=`./images/${i}.png`;
+                rImg.style.display="inline";
+                rImg.onerror=()=>rImg.style.display="none";
+            }
+        }
+    } else {
+        if(type==='id') rName.value="";
+        rImg.style.display="none";
+    }
+
+    generate();
+    updateDupindexPreview();
+}
+
+function handlePaste(e, startIdx, colType) {
+    e.preventDefault();
+    const rows = (e.clipboardData || window.clipboardData).getData('text').split(/\r\n|\n|\r/);
+    const idIn = document.querySelectorAll('.lotto-id');
+    const raIn = document.querySelectorAll('.lotto-ratio');
+
+    rows.forEach((row, i) => {
+        const tIdx = startIdx + i;
+        if (tIdx < 200 && row.trim() !== "") {
+            const cols = row.split('\t');
+            if (colType === 'id' && cols.length > 1) {
+                idIn[tIdx].value = cols[0].trim();
+                raIn[tIdx].value = cols[1].trim();
+            } else if (colType === 'ratio') {
+                raIn[tIdx].value = row.trim();
+            } else {
+                idIn[tIdx].value = row.trim();
+            }
+            handleLottoLookup(tIdx, 'id');
+        }
+    });
+
+    generate();
+    updateDupindexPreview();
+}
+
+function insertRow(idx) {
+    const ids = document.querySelectorAll('.lotto-id');
+    const ras = document.querySelectorAll('.lotto-ratio');
+    const names = document.querySelectorAll('.lotto-name-disp');
+
+    for (let i = 199; i > idx; i--) {
+        ids[i].value = ids[i-1].value;
+        ras[i].value = ras[i-1].value;
+        names[i].value = names[i-1].value;
+        handleLottoLookup(i, 'id');
+    }
+
+    ids[idx].value = "";
+    ras[idx].value = "";
+    names[idx].value = "";
+    handleLottoLookup(idx, 'id');
+
+    generate();
+    updateDupindexPreview();
+}
+
+function deleteRow(idx) {
+    const ids = document.querySelectorAll('.lotto-id');
+    const ras = document.querySelectorAll('.lotto-ratio');
+    const names = document.querySelectorAll('.lotto-name-disp');
+
+    for (let i = idx; i < 199; i++) {
+        ids[i].value = ids[i+1].value;
+        ras[i].value = ras[i+1].value;
+        names[i].value = names[i+1].value;
+        handleLottoLookup(i, 'id');
+    }
+
+    ids[199].value = "";
+    ras[199].value = "";
+    names[199].value = "";
+    handleLottoLookup(199, 'id');
+
+    generate();
+    updateDupindexPreview();
+}
+
+function resetLottoTableSilent() {
+    document.querySelectorAll('.lotto-id').forEach((el, i) => {
+        el.value = "";
+        document.querySelectorAll('.lotto-ratio')[i].value = "";
+        document.querySelectorAll('.lotto-name-disp')[i].value = "";
+        document.querySelectorAll('.lotto-img-preview')[i].style.display = "none";
+    });
+    generate();
+    updateDupindexPreview();
+}
+
+function processSplitter() { const input = document.getElementById('splitterInput').value; const preview = document.getElementById('splitterPreview'); const vertical = input.split(',').map(i => i.trim()).filter(i => i !== "").join('\n'); preview.innerText = vertical; preview.style.display = vertical ? 'block' : 'none'; document.getElementById('splitterPreviewLabel').style.display = vertical ? 'block' : 'none'; }
+function copySplitter() { const t = document.getElementById('splitterPreview').innerText; if(!t) return; navigator.clipboard.writeText(t).then(() => { const st = document.getElementById('splitStatus'); st.style.display='block'; setTimeout(()=>st.style.display='none',2000); }); }
+function copyOutput() { const o = document.getElementById('output'); navigator.clipboard.writeText(o.value).then(() => { const st = document.getElementById('outStatus'); st.style.display='block'; setTimeout(()=>st.style.display='none',2000); }); }
+function saveNote() { let k = currentCat + (currentSub ? "_" + currentSub : ""); notes[k] = document.getElementById('lastnote').value; localStorage.setItem("game_tool_notes_v21.8", JSON.stringify(notes)); const ch = document.getElementById('saveCheck'); ch.style.display = 'inline'; setTimeout(() => { ch.style.display = 'none'; }, 2000); }
+function updateData() { generate(); }
+function fill(n, i, na, ic, de) { document.getElementById('number').value = n; document.getElementById('id').value = i; document.getElementById('name').value = na; document.getElementById('icon').value = ic; document.getElementById('desc').value = de; }
+
+function loadExample() {
+    if (currentCat === 'coupon') fill('1522', 'medal_goldsanta', 'Gold Santa Medal', '/icon/coupon/medal_santa_gold.tex', 'เหรียญพิเศษ Xmas');
+    else if (currentCat === 'etcitem' && currentSub === 'box') fill('579', 'treasurebox_star_luckest', 'Luckest Treasure Box', '/icon/etc/treasurebox_gold.tex', 'กล่องสมบัติกรรมการ');
+    else if (currentCat === 'etcitem' && currentSub === 'gashapon') { 
+        fill('1078', 'oracle_valentine2025_2', 'Valentine Gashapon 2', '/icon/etc/oracle_valentine_02.tex', 'กาชาปองประจำเทศกาล...'); 
+        document.getElementById('neednum').value="10,20,30,40,50,60,70,80,90"; document.getElementById('bonusnum').value="1,2,4,5,6,8,9,12,15"; document.getElementById('meter').value="oracle_valentine2025_2_meter";
+    }
+    else if (currentCat === 'newcombine') { 
+        fill('908', 'valentine2025_2', 'Valentine Combine 2', '/icon/accs/note_trumpet_gold.tex', 'สูตรผสมพิเศษ...'); 
+        document.getElementById('mate').value="note_trumpet,thelip_medal:50,7000rm"; document.getElementById('cprize').value="note_trumpet_gold"; document.getElementById('ratio').value="100"; document.getElementById('dupindex').value="1"; document.getElementById('announce').value="0";
+    }
+    else if (currentCat === 'collection') { 
+        fill('568', 'book5_68', 'Amethyst BladeColth+', '/icon/accs/bladecloth_pu.tex', 'เปิดแลกสมุดสะสมพิเศษ...'); 
+        document.getElementById('level').value="5"; document.getElementById('list').value="bladecloth_pu2"; document.getElementById('condition').value="1,1"; document.getElementById('cprize_col').value="card_bladecloth_pu:1,sub_card_space:1"; 
+    }
+    else if (currentCat === 'card' && currentSub === 'card') { fill('1126', '6wings_remake_card', "Paladin's Wing Card", '/icon/accs/6wings_reremake.tex', 'สเตตัส โจมตีธาตุแสง+30%'); document.getElementById('effectid').value="paladinswings"; document.getElementById('effectchance').value="100"; }
+    else if (currentCat === 'card' && currentSub === 'effect') { document.getElementById('number').value = '751'; document.getElementById('id').value = 'paladinswings'; document.querySelectorAll("#effectExtra input").forEach(i => i.value = "0"); document.getElementById('mp').value="20"; document.getElementById('holyreg').value="15"; document.getElementById('holyatk').value="30"; }
+    updateData();
+}
+
+function loadLottoPreset(t) {
+    const p = { 
+        epic: { id: "oracle_epic", skip: 5, medal: "medal_ga3:1", items: [["gungnir_r2", "0.1"], ["gungnir_r", "0.2"], ["gungnir", "0.3"], ["mujun_gold", "0.2"], ["ga2_bsuit", "0.3"], ["treasurebox_element_card:2", "6.6"], ["treasurebox_element_card:4", "5"], ["card41:2", "0.5"], ["card40:2", "0.7"], ["card39:2", "0.9"], ["card38:2", "1.1"], ["card37:2", "1.3"], ["card76:2", "0.5"], ["challenge01:2", "0.5"], ["card350:2", "0.5"], ["card351:2", "0.5"], ["card132:2", "0.5"], ["challenge07:2", "0.5"], ["challenge06:2", "0.5"], ["challenge02:2", "0.5"], ["card353:2", "0.5"], ["card373:2", "0.5"], ["challenge11:2", "0.5"], ["challenge03:2", "0.5"], ["card4001:2", "8.4"], ["card4002:2", "8.4"], ["card4003:2", "8.2"], ["aw_empty:5", "10"], ["robo_dx:15", "10"], ["robo_dxb:15", "10"], ["sub_card_random_1:1", "2"], ["5000gm", "19.8"], ["medal_ga3:5", "0"]] },
+        amped: { id: "amped_rare", skip: 1, medal: "medal_ga2:1", items: [["ga2_taurus_n", "0.9"], ["organgun", "0.007"], ["beamarms", "0.007"], ["fancy_ham_white", "0.007"], ["trtrbo", "0.007"], ["beambackpack2", "0.007"], ["mhr", "0.007"], ["luciferring", "0.007"], ["fsshield", "0.007"], ["servant_choco", "0.007"], ["light", "0.007"], ["ninetails", "0.007"], ["ogrebo", "0.007"], ["kr_chain", "0.007"], ["5god_apollon", "0.007"], ["skullaxe", "0.007"], ["gaebolg", "0.007"], ["revenge", "0.007"], ["ironmaiden", "0.007"], ["vendetta", "0.007"], ["cerberus", "0.007"], ["scythe", "0.007"], ["galaxy", "0.007"], ["airmaster", "0.007"], ["3ranger", "0.007"], ["yatabow", "0.007"], ["wolfclaw", "0.007"], ["bonescythe", "0.007"], ["bpbp", "0.007"], ["funnelsw", "0.007"], ["samael", "0.007"], ["bonearmor", "0.007"], ["demonp", "0.007"], ["boosthammer", "0.007"], ["bladebrace", "0.007"], ["alastor", "0.007"], ["swordgun", "0.007"], ["flissa", "0.007"], ["acronica", "0.007"], ["parasol", "0.007"], ["mistil", "0.007"], ["skull_king", "0.007"], ["arcanaxv", "0.007"], ["wolf_m", "0.007"], ["limb_gun", "0.007"], ["hekat", "0.007"], ["geist", "0.007"], ["fsshield_remake", "0.007"], ["d_ripper", "0.007"], ["skullaxe_gold", "0.007"], ["revenge_sickle", "0.007"], ["chainbow", "0.007"], ["shooting_sword", "0.007"], ["demon_sword", "0.007"], ["valkyrie", "0.007"], ["thunder_rapier", "0.007"], ["twin_scythe", "0.007"], ["icesaurus", "0.007"], ["thunder_servant", "0.007"], ["ga2_bsuit", "0.007"], ["mammon", "0.007"], ["asmode", "0.007"], ["gallatin", "0.007"], ["natak", "0.007"], ["dwhammer", "0.007"], ["pdagger", "0.007"], ["wraith", "0.007"], ["heal", "0.007"], ["earth_servant", "0.007"], ["shieldbit", "0.007"], ["arcanaxi", "0.007"], ["baku", "0.007"], ["alraune", "0.007"], ["ishkur", "0.007"], ["psychic", "0.007"], ["grabhand", "0.007"], ["gsuit", "0.007"], ["capoeira", "0.007"], ["thanatos", "0.007"], ["onion", "0.007"], ["itigo", "0.007"], ["5god_prome", "0.007"], ["tank", "0.007"], ["demokg", "0.007"], ["rubberg", "0.007"], ["ygcard", "0.007"], ["aigis", "0.007"], ["chaser", "0.007"], ["colorgun", "0.007"], ["airmaster_red", "0.007"], ["gandrgun", "0.007"], ["insight", "0.007"], ["bskball_gold", "0.007"], ["basilisk", "0.007"], ["p_maniac", "0.007"], ["party", "0.007"], ["sukuna", "0.007"], ["arcanaix", "0.007"], ["microhat", "0.007"], ["braverobo", "0.007"], ["jugger", "0.007"], ["medal_gashapon:1", "0"], ["card41:1", "0.5"], ["card40:1", "0.7"], ["card39:1", "0.9"], ["card38:1", "1.1"], ["card37:1", "1.3"], ["card76:1", "0.5"], ["challenge01:1", "0.5"], ["card350:1", "0.5"], ["card351:1", "0.5"], ["card132:1", "0.5"], ["challenge07:1", "0.5"], ["challenge06:1", "0.5"], ["challenge02:1", "0.5"], ["card353:1", "0.5"], ["card373:1", "0.5"], ["challenge11:1", "0.5"], ["challenge03:1", "0.5"], ["card4001:1", "8.4"], ["card4002:1", "8.4"], ["card4003:1", "8.2"], ["aw_empty:5", "10"], ["robo_dx:15", "10"], ["robo_dxb:15", "10"], ["3000gm", "32.894"]] },
+        lotto: { id: "gasha_lotto", skip: 1, medal: "medal_ga2:1", items: [["phsword_n", "0.022"], ["ekg", "0.022"], ["accssaw_gold", "0.022"], ["devilclaw", "0.022"], ["bcloak", "0.022"], ["arcanaxiii", "0.022"], ["arcanax", "0.022"], ["arcanaiv", "0.022"], ["anubis", "0.022"], ["maahes", "0.022"], ["horus", "0.022"], ["5god_mjollnir", "0.022"], ["furaijin_fu", "0.022"], ["arcanavii", "0.022"], ["asura", "0.022"], ["5god_hermes", "0.022"], ["blackmg", "0.022"], ["cygnus", "0.022"], ["g_horn", "0.022"], ["steambp", "0.022"], ["naginata", "0.022"], ["arcanaxx", "0.022"], ["cyclops", "0.022"], ["5god_hepha", "0.022"], ["serket", "0.022"], ["jehuty", "0.022"], ["wadjet", "0.022"], ["funnelblade", "0.022"], ["nekhbet", "0.022"], ["two_largeswords", "0.022"], ["arcanaviii", "0.022"], ["lich", "0.022"], ["osiris", "0.022"], ["fire_gauntlet", "0.022"], ["belphegor", "0.022"], ["dark_wmace", "0.022"], ["mechasuit", "0.022"], ["heavygun", "0.022"], ["dwcolor", "0.022"], ["nidhogg", "0.022"], ["halteclere", "0.022"], ["d_shield", "0.022"], ["arcanaz", "0.022"], ["kusanagi", "0.022"], ["drider", "0.022"], ["big_arm", "0.022"], ["mechagun", "0.022"], ["fns", "0.022"], ["lkg", "0.022"], ["solais", "0.022"], ["science", "0.022"], ["parasite", "0.022"], ["sebek", "0.022"], ["fungus", "0.022"], ["gnoph", "0.022"], ["tengu", "0.022"], ["akki", "0.022"], ["guts", "0.022"], ["spidersuit", "0.022"], ["gram", "0.022"], ["bitmirror", "0.022"], ["egrab_fi", "0.022"], ["plasmash", "0.022"], ["sevenstar", "0.022"], ["fire_gauntlet_ice", "0.022"], ["souldouble", "0.022"], ["rudra", "0.022"], ["arcanaxvi_purple", "0.022"], ["twdgun", "0.022"], ["cnail", "0.022"], ["msger", "0.022"], ["wormblade_purple", "0.022"], ["totem", "0.022"], ["card41:1", "0.5"], ["card40:1", "0.7"], ["card39:1", "0.9"], ["card38:1", "1.1"], ["card37:1", "1.3"], ["card76:1", "0.5"], ["challenge01:1", "0.5"], ["card350:1", "0.5"], ["card351:1", "0.5"], ["card132:1", "0.5"], ["challenge07:1", "0.5"], ["challenge06:1", "0.5"], ["challenge02:1", "0.5"], ["card353:1", "0.5"], ["card373:1", "0.5"], ["challenge11:1", "0.5"], ["challenge03:1", "0.5"], ["card4001:1", "8.4"], ["card4002:1", "8.4"], ["card4003:1", "8.2"], ["aw_empty:5", "10"], ["robo_dx:15", "10"], ["robo_dxb:15", "10"], ["3000gm", "32.894"]] },
+        activity: { id: "activity_event", skip: 0, medal: "medal_ga2:1", items: [["tao", "0.3"], ["ikkaku", "0.3"], ["swimring", "0.3"], ["dragon_master_blue", "0.3"], ["mechasuit", "0.3"], ["medal_ga2:5", "0"], ["treasurebox_element_card:1", "5"], ["card41:1", "0.5"], ["card40:1", "0.7"], ["card39:1", "0.9"], ["card38:1", "1.1"], ["card37:1", "1.3"], ["card76:1", "0.5"], ["challenge01:1", "0.5"], ["card350:1", "0.5"], ["card351:1", "0.5"], ["card132:1", "0.5"], ["challenge07:1", "0.5"], ["challenge06:1", "0.5"], ["challenge02:1", "0.5"], ["card353:1", "0.5"], ["card373:1", "0.5"], ["challenge11:1", "0.5"], ["challenge03:1", "0.5"], ["card4001:1", "8.4"], ["card4002:1", "8.4"], ["card4003:1", "8.2"], ["aw_empty:5", "10"], ["robo_dx:15", "10"], ["robo_dxb:15", "10"], ["3000gm", "28"]] }
+    };
+    const s = p[t]; document.getElementById('gashaName').value = s.id; document.getElementById('medalSkipCount').value = s.skip; document.getElementById('medalTxt').value = s.medal;
+    resetLottoTableSilent(); s.items.forEach((item, i) => { if(i < 200) { document.querySelectorAll('.lotto-id')[i].value = item[0]; document.querySelectorAll('.lotto-ratio')[i].value = item[1]; handleLottoLookup(i, 'id'); } });
+    generate();
+    updateDupindexPreview();
+}
+window.onload = () => { loadItems(); switchTab('etcitem', document.querySelector('.catbtn:nth-child(2)')); };
+
+// ===== GUIDE POPUP FROM ATTACHED TEXT =====
+window.addEventListener("load", () => {
+    const btn = document.createElement("button");
+    btn.innerText = "📘 Setting Guide";
+    btn.className = "load-btn";
+    btn.style.background = "#7c3aed";
+    btn.onclick = openSettingGuidePopup;
+
+    const loadBtn = document.getElementById("mainLoadBtn");
+    if (loadBtn) loadBtn.insertAdjacentElement("afterend", btn);
+});
+
+function openSettingGuidePopup() {
+    const rawText = `/// couponsetting
+-ต้อง type=5 นะ แล้วดู period ด้วย
+-จะใช้ระบบ dic_GEM ต้อง medal_GEM_ ไม่ก็ coupon_GEM_
+
+coupon1535.id=meda_sakura2026
+coupon1535.name=Sakura Medal
+coupon1535.icon=/icon/coupon/event210414_1.tex
+coupon1535.desc=เหรียญซากุระ ดมแล้วหอม มีอายุอยู่ได้40วัน สามารถรวบรวมแล้วไปใช้ทำอะไรบางอย่างที่สำคัญได้
+coupon1535.type=5
+coupon1535.value=0
+coupon1535.period=40
+
+/// newquestsetting
+
+newquest6456.id=score20076
+newquest6456.name=รับเบ็ดตกปลา
+newquest6456.desc=รับเบ็ดตกปลา ก่อนวันที่ 31 ธันวาคม 2568
+newquest6456.icon=/icon/quest/score.tex
+newquest6456.level=1
+newquest6456.prize=1000rm,rod23_PERIOD2,rod28_PERIOD2
+newquest6456.ratio=100
+
+newquest6450.id=ruins_ex_challenge_score300000
+newquest6450.name=[Event]Amped Spelunker Extra Slayer
+newquest6450.desc=ได้รับ 300000 points ใน Amped Spelunker Extra
+newquest6450.icon=/icon/quest/challenge.tex
+newquest6450.level=5
+newquest6450.prize=emblem179
+
+newquest5540.id=ninja_kurumi_clear
+newquest5540.name=Amped Ninja Mansion Cleared
+newquest5540.desc=ผ่าน Ninja Resisdence
+newquest5540.icon=/icon/quest/challenge.tex
+newquest5540.level=4
+newquest5540.prize=RANDOM,100gm,200gm,300gm,500gm,jsword:2,epee_gold:1,pikopiko:2,pikopiko_b:1,pikopiko_s:1,pikopiko_g:1
+newquest5540.ratio=30,15,7,5,20,3,11,4,3,2
+newquest5540.repeat=true
+
+/// newcombinesetting
+
+newcombine996.id=combine_202603_2
+newcombine996.name=March Event Combine 2
+newcombine996.desc=สูตรผสมพิเศษในกิจกรรมเดือนมีนาคม มีโอกาสได้รับ(โอกาสได้รับไอเทมน้อยกว่าแบบใช้Aผสม) \\nBlood Blade\\nSuper Sentai\\nBurden Dragon Kai\\nOMSA Dragon Knapsack\\nOMUSA DRAGON Bottle x 2\\nRobo dx x 2\\nRobo dxb x 2\\n1000G
+newcombine996.icon=/icon/accs/sacc_omusa.tex
+newcombine996.mate=omusa_fragments:10,coupon43:2,5000gm
+newcombine996.prize=bloodblade,heroes,sdragonsp,sdragon,dragonbtl:2,robo_dx:2,robo_dxb:2,1000gm
+newcombine996.ratio=0.4,0.4,6,5,12.1,18,18,40.1
+newcombine996.dupindex=4,5
+newcombine996.announce=0
+
+/// collectionsetting
+-เช็ค conditionกับlist ให้ดีและ duplicate
+collection564.id=book5_64
+collection564.name=[Event]Practical Skin Doll
+collection564.icon=/icon/accs/skindoll.tex
+collection564.desc=เปิดแลกสมุดสะสมพิเศษตุ๊กตาสกิน
+collection564.level=5
+collection564.list=bonescythe_gold
+collection564.condition=1,1,1,1
+collection564.prize=sacc_myskin_bird_fire_PERIOD30,sacc_myskin_bird_ice_PERIOD30,sacc_myskin_bird_elec_PERIOD30,sacc_myskin_bird_wind_PERIOD30
+collection564.duplicate=NULL,NULL,NULL,NULL
+
+collection568.id=book5_68
+collection568.name=Amethyst BladeColth+
+collection568.icon=/icon/accs/bladecloth_pu.tex
+collection568.desc=เปิดแลกสมุดสะสมพิเศษสำหรับ Amethyst BladeColth+
+collection568.level=5
+collection568.list=bladecloth_pu2
+collection568.condition=1,1
+collection568.prize=card_bladecloth_pu:1,sub_card_space:1
+
+/// treasureboxsetting
+score
+treasurebox291.id=treasurebox_event20251112
+treasurebox291.name=Blade Cloth Event Box
+treasurebox291.icon.open=/component/treasurebox/chainb_open.tex
+treasurebox291.icon.close=/component/treasurebox/chainb_close.tex
+treasurebox291.icon=/icon/etc/treasurebox_chainb.tex
+treasurebox291.exp=600
+treasurebox291.exp.type=score
+treasurebox291.prize=coupon_20251112_1:1,coupon_20251112_1:2,bladecloth,kr_jsword:1,hsword:1,wsword:1,jsword:1,2025gm
+treasurebox291.ratio=10,2,10,2,2,10,30,34
+treasurebox291.dupindex=7
+
+needless
+treasurebox269.id=treasurebox_home5
+treasurebox269.name=กล่องบ้านนักสู้หลังที่ 5
+treasurebox269.icon.open=/component/treasurebox/labyblue_open.tex
+treasurebox269.icon.close=/component/treasurebox/labyblue_close.tex
+treasurebox269.icon=/icon/etc/treasurebox_labyblue.tex
+treasurebox269.exp.type=needless
+treasurebox269.prize=coupon_home5:2
+treasurebox269.ratio=100
+treasurebox269.dupindex=0
+
+/// etcitemsetting
+
+กาชาปอง oracle
+etcitem1771.id=oracle_testxmas
+etcitem1771.name=ตู้กาชาปองที่เสียรอซ่อม2025
+etcitem1771.desc=กาชาปองที่กำลังถูกซ่อมแซม ยังไม่มีอะไรให้น่าจับจอง
+etcitem1771.icon=/icon/etc/oracle.tex
+etcitem1771.neednum=5,10,30,50
+etcitem1771.bonusnum=1,3,5,10
+etcitem1771.meter=oracle_testdec2025_meter
+
+etcitem1206.id=oracle_cn2026_epic
+etcitem1206.name=Epic and Chinese New Year Gashapon 
+etcitem1206.icon=/icon/etc/oracle_luckybag_02.tex
+etcitem1206.desc=ตู้กาชาปองแห่งโชคลาภตรุษจีน มีโอกาสได้รับไอเทมระดับตำนาน\\n●ทุกครั้งของการสุ่มจะได้รับ Gashapon Stone2 ยกเว้นกรณีได้รับACC
+etcitem1206.neednum=10,20,30,50
+etcitem1206.bonusnum=0,0,0,0
+etcitem1206.meter=oracle_cn2026_epic_meter
+
+กล่อง
+etcitem1208.id=treasurebox_wd2026
+etcitem1208.name=White Day Box
+etcitem1208.desc=กล่องในเทศกาลไวท์เดย์ บรรจุไอเทมแรร์ต่างๆไว้มากมาย\\n\\yโอกาสได้รับACCโดยรวม19% โอกาสได้รับ1000G 81%
+etcitem1208.icon=/icon/etc/treasurebox_gold.tex
+
+emblem179
+etcitem1215.id=em_emblem_event_summer2026
+etcitem1215.name=COOL! SUMMER! Emblem 
+etcitem1215.icon=/icon/emblem/kr_event_summer2025.tex
+etcitem1215.desc=ตราสัญลักษณ์ที่มอบให้แก่ผู้ที่สามารถฝ่าความร้อนอันแสนโหดร้ายไปพร้อมกับ GetAmped ได้ เพียงแค่เห็นตราสัญลักษณ์ก็ให้ความรู้สึกเย็นสดชื่นขึ้นมา\\n●เมื่อสวมใส่ จะเพิ่มอัตราการได้รับ G +20% และอัตราการได้รับ PTS +15%
+
+คูปอง
+etcitem1216.id=cp_coupon_summer2026_abg
+etcitem1216.name=ABG Summer medal
+etcitem1216.icon=/icon/coupon/event_summer2025_coin.tex
+etcitem1216.desc=เหรียญแห่งศึกฤดูร้อน มอบให้แก่ผู้ที่ผ่านสนามรบสุดเดือด ใช้แลกอุปกรณ์ทรงพลังได้
+
+การ์ด
+etcitem1217.id=cc_sub_card_water
+etcitem1217.name=Aqua Servant Aura Card
+etcitem1217.icon=/icon/card/subeff_water_servant.tex
+etcitem1217.desc=ออร่าที่ได้รับการคุ้มครองจาก Aqua Servant
+
+/// เรียง shopitem Medal
+
+[INPUT]
+<วางรายการจาก Excel ได้เลย เช่น>
+itemA\tBlue Gashapon Stone x 200
+itemB\tGashapon Stone2 x 100
+- เริ่มเลข shopitem = ใส่ตัวเลข
+
+[MAP ID]
+ให้ใส่ว่า medal id อะไร
+
+[CONDITION]
+- สร้างเลข shopitem ไล่ต่อกัน (XXXX, XXXX+1, ...)
+- ห้ามข้ามเลขเด็ดขาด
+- แสดงผลเรียงตามเลข shopitem จากมาก → น้อย
+- ตัด :1 ออกจาก id (ถ้ามี)
+- ใช้ medal1, medal2, medal3 ตามลำดับ (ถ้ามีหลาย reward)
+- category=1,6 ทุกอัน
+
+[OUTPUT FORMAT]
+shopitemXXXX=id,0,0
+shopitemXXXX.medal1=medal_x:จำนวน
+shopitemXXXX.category=1,6
+
+[CHECK]
+- เลข shopitem ต้องต่อเนื่อง
+- ห้ามข้ามเลข
+- เรียง output จาก shopitem มาก → น้อย
+- medal ต้อง map ถูกทั้งหมด
+
+ตัวอย่าง
+shopitem1065=itemB,0,0
+shopitem1065.medal1=medal_ga3:100
+shopitem1065.category=1,6
+
+shopitem1064=itemA,0,0
+shopitem1064.medal1=medal_ga2:200
+shopitem1064.category=1,6`;
+
+    const sections = parseGuideSections(rawText);
+
+    const win = window.open("", "_blank", "width=1180,height=820,scrollbars=yes,resizable=yes");
+    if (!win) {
+        alert("Popup ถูกบล็อก กรุณาอนุญาต popup ก่อน");
+        return;
+    }
+
+    const doc = win.document;
+    doc.open();
+    doc.write("<!DOCTYPE html><html lang='th'><head><meta charset='UTF-8'><title>GetAmped Setting Guide</title></head><body></body></html>");
+    doc.close();
+
+    const style = doc.createElement("style");
+    style.textContent = `
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', 'Kanit', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: 290px 1fr;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px 16px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .sidebar h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            color: #2563eb;
+        }
+        .sidebar p {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .toc-link {
+            display: block;
+            text-decoration: none;
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: #374151;
+            background: #f3f4f6;
+            transition: 0.2s;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+        .toc-link:hover {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+        }
+        .toc-link.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
+        }
+        .main {
+            padding: 30px;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+        .topbar {
+            margin-bottom: 22px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .topbar button {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+        }
+        .topbar button.close {
+            background: #9ca3af;
+        }
+        .guide-section {
+            background: white;
+            border-radius: 18px;
+            padding: 22px;
+            margin-bottom: 22px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            scroll-margin-top: 20px;
+            max-width: 100%;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .guide-section h2 {
+            margin: 0;
+            color: #2563eb;
+            font-size: 26px;
+        }
+        .copy-section-btn {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            background: #0f766e;
+            color: white;
+        }
+        .copy-section-btn.copied {
+            background: #16a34a;
+        }
+        pre {
+            margin: 0;
+            background: #f1f5f9;
+            color: #111827;
+            padding: 18px;
+            border-radius: 14px;
+            font-family: Consolas, monospace;
+            font-size: 15px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            overflow-x: hidden;
+            border: 1px solid #e5e7eb;
+            max-width: 100%;
+            box-sizing: border-box;
+            line-height: 1.8;
+        }
+        .red-text {
+            color: #dc2626;
+            font-weight: 700;
+        }
+    `;
+    doc.head.appendChild(style);
+
+    const layout = doc.createElement("div");
+    layout.className = "layout";
+
+    const sidebar = doc.createElement("aside");
+    sidebar.className = "sidebar";
+
+    const sideTitle = doc.createElement("h1");
+    sideTitle.textContent = "📘 Guide";
+    sidebar.appendChild(sideTitle);
+
+    const sideDesc = doc.createElement("p");
+    sideDesc.textContent = "คลิกเพื่อไปยังหมวดที่ต้องการ";
+    sidebar.appendChild(sideDesc);
+
+    const main = doc.createElement("main");
+    main.className = "main";
+
+    const topbar = doc.createElement("div");
+    topbar.className = "topbar";
+
+    const topBtn = doc.createElement("button");
+    topBtn.textContent = "⬆️ Top";
+    topBtn.onclick = () => win.scrollTo({ top: 0, behavior: "smooth" });
+
+    const closeBtn = doc.createElement("button");
+    closeBtn.className = "close";
+    closeBtn.textContent = "Close";
+    closeBtn.onclick = () => win.close();
+
+    topbar.appendChild(topBtn);
+    topbar.appendChild(closeBtn);
+    main.appendChild(topbar);
+
+    const tocLinks = [];
+    const sectionEls = [];
+
+    sections.forEach(sec => {
+        const link = doc.createElement("a");
+        link.className = "toc-link";
+        link.href = "#" + sec.id;
+        link.textContent = sec.title;
+        link.dataset.target = sec.id;
+        sidebar.appendChild(link);
+        tocLinks.push(link);
+
+        const section = doc.createElement("section");
+        section.className = "guide-section";
+        section.id = sec.id;
+        section.dataset.section = sec.id;
+
+        const header = doc.createElement("div");
+        header.className = "section-header";
+
+        const h2 = doc.createElement("h2");
+        h2.textContent = sec.title;
+
+        const copyBtn = doc.createElement("button");
+        copyBtn.className = "copy-section-btn";
+        copyBtn.textContent = "📋 Copy หมวดนี้";
+        copyBtn.onclick = async () => {
+            const text = "/// " + sec.title + "\\n\\n" + sec.content.trim();
+            await win.navigator.clipboard.writeText(text);
+            const oldText = copyBtn.textContent;
+            copyBtn.textContent = "✅ Copy แล้ว";
+            copyBtn.classList.add("copied");
+            setTimeout(() => {
+                copyBtn.textContent = oldText;
+                copyBtn.classList.remove("copied");
+            }, 1400);
+        };
+
+        header.appendChild(h2);
+        header.appendChild(copyBtn);
+
+        const pre = doc.createElement("pre");
+        pre.innerHTML = formatGuideContent(sec.content.trim());
+
+        section.appendChild(header);
+        section.appendChild(pre);
+
+        main.appendChild(section);
+        sectionEls.push(section);
+    });
+
+    layout.appendChild(sidebar);
+    layout.appendChild(main);
+    doc.body.appendChild(layout);
+
+    function setActiveToc() {
+        let currentId = sectionEls[0] ? sectionEls[0].id : null;
+        const offset = 140;
+
+        sectionEls.forEach(sec => {
+            const top = sec.getBoundingClientRect().top;
+            if (top <= offset) currentId = sec.id;
+        });
+
+        tocLinks.forEach(link => {
+            link.classList.toggle("active", link.dataset.target === currentId);
+        });
+    }
+
+    tocLinks.forEach(link => {
+        link.addEventListener("click", () => {
+            tocLinks.forEach(x => x.classList.remove("active"));
+            link.classList.add("active");
+        });
+    });
+
+    win.addEventListener("scroll", setActiveToc, { passive: true });
+    win.addEventListener("load", setActiveToc);
+    setActiveToc();
+}
+
+function parseGuideSections(rawText) {
+    const lines = rawText.split(/\r?\n/);
+    const sections = [];
+    let currentSection = null;
+
+    lines.forEach(line => {
+        if (line.trim().startsWith("///")) {
+            const title = line.replace("///", "").trim();
+            currentSection = {
+                title: title,
+                id: "sec_" + title.toLowerCase().replace(/[^a-z0-9ก-๙]+/g, "_"),
+                content: ""
+            };
+            sections.push(currentSection);
+        } else if (currentSection) {
+            currentSection.content += (currentSection.content ? "\n" : "") + line;
+        }
+    });
+
+    return sections;
+}
+
+function formatGuideContent(text) {
+    let html = escapeHtml(text);
+
+    const redLines = [
+        "&lt;วางรายการจาก Excel ได้เลย เช่น&gt;",
+        "itemA\\tBlue Gashapon Stone x 200",
+        "itemB\\tGashapon Stone2 x 100",
+        "- เริ่มเลข shopitem = ใส่ตัวเลข",
+        "ให้ใส่ว่า medal id อะไร"
+    ];
+
+    redLines.forEach(line => {
+        const escaped = line.replace(/[.*+?^${}()|[\]\\\\]/g, "\\\\$&");
+        html = html.replace(new RegExp(escaped, "g"), '<span class="red-text">' + line + '</span>');
+    });
+
+    return html;
+}
+
+function escapeHtml(str) {
+    return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+</script>
+</body>
+</html>
