@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <title>Game Config Generator - Master Final V21.8</title>
 <style>
+input::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
     :root {
         --primary: #2563eb; --bg-body: #f3f4f6; --bg-card: #ffffff;
         --text-main: #1f2937; --text-label: #4b5563; --border-color: #d1d5db;
@@ -83,8 +88,8 @@
         <div class="catbtn" onclick="switchTab('newcombine', this)">NewCombine</div>
         <div class="catbtn" onclick="switchTab('collection', this)">Collection</div>
         <div class="catbtn" onclick="switchTab('card', this)">Card</div>
-        <div class="catbtn" onclick="switchTab('lotto', this)" style="background:#dc2626; color:white;">🎰 Lotto</div>
-        <div class="catbtn" onclick="switchTab('splitter', this)" style="background:#4b5563; color:white;">✂️ Splitter</div>
+        <div class="catbtn" onclick="switchTab('lotto', this)" style="background:#dc2626; color:white;">🎰กาชาปอง</div>
+        <div class="catbtn" onclick="switchTab('splitter', this)" style="background:#4b5563; color:white;">✂️เรียงcomma</div>
         <div class="catbtn" onclick="switchTab('gaicon', this)" style="background:#059669; color:white;">🔍 GA Icon</div>
     </div>
 
@@ -109,8 +114,39 @@
         <div id="combineExtra" class="hidden vertical-fields"><label>Combine Settings</label><div><span class="sub-label">mate</span><input id="mate" oninput="updateData()"></div><div><span class="sub-label">prize</span><input id="cprize" oninput="updateData()"></div><div><span class="sub-label">ratio</span><input id="ratio" oninput="updateData()"></div><div><span class="sub-label">dupindex</span><input id="dupindex" oninput="updateData()"></div><div><span class="sub-label">announce</span><input id="announce" oninput="updateData()"></div></div>
         <div id="collectionExtra" class="hidden vertical-fields"><label>Collection Details</label><div><span class="sub-label">level</span><input id="level" oninput="updateData()"></div><div><span class="sub-label">list</span><input id="list" oninput="updateData()"></div><div><span class="sub-label">condition</span><input id="condition" oninput="updateData()"></div><div><span class="sub-label">prize</span><input id="cprize_col" oninput="updateData()"></div></div>
         <div id="cardExtra" class="hidden vertical-fields"><label>Card Connect</label><div><span class="sub-label">effect id</span><input id="effectid" oninput="updateData()"></div><div><span class="sub-label">chance</span><input id="effectchance" oninput="updateData()"></div></div>
-        <div id="effectExtra" class="hidden"><label>Stats (STR TEC SPD JMP DEF SIZE:Auto)</label><div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px;"><input id="str" value="0" oninput="updateData()"><input id="tec" value="0" oninput="updateData()"><input id="spd" value="0" oninput="updateData()"><input id="jmp" value="0" oninput="updateData()"><input id="def" value="0" oninput="updateData()"></div><label>Other Stats</label><div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; margin-top:5px;"><input id="hp" value="0" oninput="updateData()"><input id="mp" value="0" oninput="updateData()"><input id="cutreg" value="0" oninput="updateData()"><input id="firereg" value="0" oninput="updateData()"><input id="icereg" value="0" oninput="updateData()"><input id="elecreg" value="0" oninput="updateData()"><input id="cutatk" value="0" oninput="updateData()"><input id="fireatk" value="0" oninput="updateData()"><input id="iceatk" value="0" oninput="updateData()"><input id="elecatk" value="0" oninput="updateData()"><input id="holyreg" value="0" oninput="updateData()"><input id="darkreg" value="0" oninput="updateData()"><input id="holyatk" value="0" oninput="updateData()"><input id="darkatk" value="0" oninput="updateData()"></div></div>
-    </div>
+       <div id="effectExtra" class="hidden">
+
+<label>Stats (STR TEC SPD JMP DEF SIZE:Auto)</label>
+<div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px;">
+  <input id="str" placeholder="str" oninput="updateData()">
+  <input id="tec" placeholder="tec" oninput="updateData()">
+  <input id="spd" placeholder="spd" oninput="updateData()">
+  <input id="jmp" placeholder="jmp" oninput="updateData()">
+  <input id="def" placeholder="def" oninput="updateData()">
+</div>
+
+<label>Other Stats</label>
+<div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; margin-top:5px;">
+  <input id="hp" placeholder="hp" oninput="updateData()">
+  <input id="mp" placeholder="mp" oninput="updateData()">
+  <input id="cutreg" placeholder="cutreg" oninput="updateData()">
+  <input id="firereg" placeholder="firereg" oninput="updateData()">
+  <input id="icereg" placeholder="icereg" oninput="updateData()">
+  <input id="elecreg" placeholder="elecreg" oninput="updateData()">
+  <input id="cutatk" placeholder="cutatk" oninput="updateData()">
+  <input id="fireatk" placeholder="fireatk" oninput="updateData()">
+  <input id="iceatk" placeholder="iceatk" oninput="updateData()">
+  <input id="elecatk" placeholder="elecatk" oninput="updateData()">
+  <input id="holyreg" placeholder="holyreg" oninput="updateData()">
+  <input id="darkreg" placeholder="darkreg" oninput="updateData()">
+  <input id="holyatk" placeholder="holyatk" oninput="updateData()">
+  <input id="darkatk" placeholder="darkatk" oninput="updateData()">
+</div>
+
+</div>
+
+
+	   </div>
 
     <div id="lottoSection" class="hidden">
         <div style="display:grid; grid-template-columns: 2fr 1fr; gap:15px; margin-bottom: 10px;">
@@ -431,6 +467,11 @@ function saveNote() { let k = currentCat + (currentSub ? "_" + currentSub : "");
 function updateData() { generate(); }
 function fill(n, i, na, ic, de) { document.getElementById('number').value = n; document.getElementById('id').value = i; document.getElementById('name').value = na; document.getElementById('icon').value = ic; document.getElementById('desc').value = de; }
 
+document.querySelectorAll('#effectExtra input').forEach(input => {
+  input.placeholder = input.id;
+});
+
+
 function loadExample() {
     if (currentCat === 'coupon') fill('1522', 'medal_goldsanta', 'Gold Santa Medal', '/icon/coupon/medal_santa_gold.tex', 'เหรียญพิเศษ Xmas');
     else if (currentCat === 'etcitem' && currentSub === 'box') fill('579', 'treasurebox_star_luckest', 'Luckest Treasure Box', '/icon/etc/treasurebox_gold.tex', 'กล่องสมบัติกรรมการ');
@@ -455,8 +496,7 @@ function loadLottoPreset(t) {
     const p = { 
         epic: { id: "oracle_epic", skip: 5, medal: "medal_ga3:1", items: [["gungnir_r2", "0.1"], ["gungnir_r", "0.2"], ["gungnir", "0.3"], ["mujun_gold", "0.2"], ["ga2_bsuit", "0.3"], ["treasurebox_element_card:2", "6.6"], ["treasurebox_element_card:4", "5"], ["card41:2", "0.5"], ["card40:2", "0.7"], ["card39:2", "0.9"], ["card38:2", "1.1"], ["card37:2", "1.3"], ["card76:2", "0.5"], ["challenge01:2", "0.5"], ["card350:2", "0.5"], ["card351:2", "0.5"], ["card132:2", "0.5"], ["challenge07:2", "0.5"], ["challenge06:2", "0.5"], ["challenge02:2", "0.5"], ["card353:2", "0.5"], ["card373:2", "0.5"], ["challenge11:2", "0.5"], ["challenge03:2", "0.5"], ["card4001:2", "8.4"], ["card4002:2", "8.4"], ["card4003:2", "8.2"], ["aw_empty:5", "10"], ["robo_dx:15", "10"], ["robo_dxb:15", "10"], ["sub_card_random_1:1", "2"], ["5000gm", "19.8"], ["medal_ga3:5", "0"]] },
         amped: { id: "amped_rare", skip: 1, medal: "medal_ga2:1", items: [["ga2_taurus_n", "0.9"], ["organgun", "0.007"], ["beamarms", "0.007"], ["fancy_ham_white", "0.007"], ["trtrbo", "0.007"], ["beambackpack2", "0.007"], ["mhr", "0.007"], ["luciferring", "0.007"], ["fsshield", "0.007"], ["servant_choco", "0.007"], ["light", "0.007"], ["ninetails", "0.007"], ["ogrebo", "0.007"], ["kr_chain", "0.007"], ["5god_apollon", "0.007"], ["skullaxe", "0.007"], ["gaebolg", "0.007"], ["revenge", "0.007"], ["ironmaiden", "0.007"], ["vendetta", "0.007"], ["cerberus", "0.007"], ["scythe", "0.007"], ["galaxy", "0.007"], ["airmaster", "0.007"], ["3ranger", "0.007"], ["yatabow", "0.007"], ["wolfclaw", "0.007"], ["bonescythe", "0.007"], ["bpbp", "0.007"], ["funnelsw", "0.007"], ["samael", "0.007"], ["bonearmor", "0.007"], ["demonp", "0.007"], ["boosthammer", "0.007"], ["bladebrace", "0.007"], ["alastor", "0.007"], ["swordgun", "0.007"], ["flissa", "0.007"], ["acronica", "0.007"], ["parasol", "0.007"], ["mistil", "0.007"], ["skull_king", "0.007"], ["arcanaxv", "0.007"], ["wolf_m", "0.007"], ["limb_gun", "0.007"], ["hekat", "0.007"], ["geist", "0.007"], ["fsshield_remake", "0.007"], ["d_ripper", "0.007"], ["skullaxe_gold", "0.007"], ["revenge_sickle", "0.007"], ["chainbow", "0.007"], ["shooting_sword", "0.007"], ["demon_sword", "0.007"], ["valkyrie", "0.007"], ["thunder_rapier", "0.007"], ["twin_scythe", "0.007"], ["icesaurus", "0.007"], ["thunder_servant", "0.007"], ["ga2_bsuit", "0.007"], ["mammon", "0.007"], ["asmode", "0.007"], ["gallatin", "0.007"], ["natak", "0.007"], ["dwhammer", "0.007"], ["pdagger", "0.007"], ["wraith", "0.007"], ["heal", "0.007"], ["earth_servant", "0.007"], ["shieldbit", "0.007"], ["arcanaxi", "0.007"], ["baku", "0.007"], ["alraune", "0.007"], ["ishkur", "0.007"], ["psychic", "0.007"], ["grabhand", "0.007"], ["gsuit", "0.007"], ["capoeira", "0.007"], ["thanatos", "0.007"], ["onion", "0.007"], ["itigo", "0.007"], ["5god_prome", "0.007"], ["tank", "0.007"], ["demokg", "0.007"], ["rubberg", "0.007"], ["ygcard", "0.007"], ["aigis", "0.007"], ["chaser", "0.007"], ["colorgun", "0.007"], ["airmaster_red", "0.007"], ["gandrgun", "0.007"], ["insight", "0.007"], ["bskball_gold", "0.007"], ["basilisk", "0.007"], ["p_maniac", "0.007"], ["party", "0.007"], ["sukuna", "0.007"], ["arcanaix", "0.007"], ["microhat", "0.007"], ["braverobo", "0.007"], ["jugger", "0.007"], ["medal_gashapon:1", "0"], ["card41:1", "0.5"], ["card40:1", "0.7"], ["card39:1", "0.9"], ["card38:1", "1.1"], ["card37:1", "1.3"], ["card76:1", "0.5"], ["challenge01:1", "0.5"], ["card350:1", "0.5"], ["card351:1", "0.5"], ["card132:1", "0.5"], ["challenge07:1", "0.5"], ["challenge06:1", "0.5"], ["challenge02:1", "0.5"], ["card353:1", "0.5"], ["card373:1", "0.5"], ["challenge11:1", "0.5"], ["challenge03:1", "0.5"], ["card4001:1", "8.4"], ["card4002:1", "8.4"], ["card4003:1", "8.2"], ["aw_empty:5", "10"], ["robo_dx:15", "10"], ["robo_dxb:15", "10"], ["3000gm", "32.894"]] },
-        lotto: { id: "gasha_lotto", skip: 1, medal: "medal_ga2:1", items: [["phsword_n", "0.022"], ["ekg", "0.022"], ["accssaw_gold", "0.022"], ["devilclaw", "0.022"], ["bcloak", "0.022"], ["arcanaxiii", "0.022"], ["arcanax", "0.022"], ["arcanaiv", "0.022"], ["anubis", "0.022"], ["maahes", "0.022"], ["horus", "0.022"], ["5god_mjollnir", "0.022"], ["furaijin_fu", "0.022"], ["arcanavii", "0.022"], ["asura", "0.022"], ["5god_hermes", "0.022"], ["blackmg", "0.022"], ["cygnus", "0.022"], ["g_horn", "0.022"], ["steambp", "0.022"], ["naginata", "0.022"], ["arcanaxx", "0.022"], ["cyclops", "0.022"], ["5god_hepha", "0.022"], ["serket", "0.022"], ["jehuty", "0.022"], ["wadjet", "0.022"], ["funnelblade", "0.022"], ["nekhbet", "0.022"], ["two_largeswords", "0.022"], ["arcanaviii", "0.022"], ["lich", "0.022"], ["osiris", "0.022"], ["fire_gauntlet", "0.022"], ["belphegor", "0.022"], ["dark_wmace", "0.022"], ["mechasuit", "0.022"], ["heavygun", "0.022"], ["dwcolor", "0.022"], ["nidhogg", "0.022"], ["halteclere", "0.022"], ["d_shield", "0.022"], ["arcanaz", "0.022"], ["kusanagi", "0.022"], ["drider", "0.022"], ["big_arm", "0.022"], ["mechagun", "0.022"], ["fns", "0.022"], ["lkg", "0.022"], ["solais", "0.022"], ["science", "0.022"], ["parasite", "0.022"], ["sebek", "0.022"], ["fungus", "0.022"], ["gnoph", "0.022"], ["tengu", "0.022"], ["akki", "0.022"], ["guts", "0.022"], ["spidersuit", "0.022"], ["gram", "0.022"], ["bitmirror", "0.022"], ["egrab_fi", "0.022"], ["plasmash", "0.022"], ["sevenstar", "0.022"], ["fire_gauntlet_ice", "0.022"], ["souldouble", "0.022"], ["rudra", "0.022"], ["arcanaxvi_purple", "0.022"], ["twdgun", "0.022"], ["cnail", "0.022"], ["msger", "0.022"], ["wormblade_purple", "0.022"], ["totem", "0.022"], ["card41:1", "0.5"], ["card40:1", "0.7"], ["card39:1", "0.9"], ["card38:1", "1.1"], ["card37:1", "1.3"], ["card76:1", "0.5"], ["challenge01:1", "0.5"], ["card350:1", "0.5"], ["card351:1", "0.5"], ["card132:1", "0.5"], ["challenge07:1", "0.5"], ["challenge06:1", "0.5"], ["challenge02:1", "0.5"], ["card353:1", "0.5"], ["card373:1", "0.5"], ["challenge11:1", "0.5"], ["challenge03:1", "0.5"], ["card4001:1", "8.4"], ["card4002:1", "8.4"], ["card4003:1", "8.2"], ["aw_empty:5", "10"], ["robo_dx:15", "10"], ["robo_dxb:15", "10"], ["3000gm", "32.894"]] },
-        activity: { id: "activity_event", skip: 0, medal: "medal_ga2:1", items: [["tao", "0.3"], ["ikkaku", "0.3"], ["swimring", "0.3"], ["dragon_master_blue", "0.3"], ["mechasuit", "0.3"], ["medal_ga2:5", "0"], ["treasurebox_element_card:1", "5"], ["card41:1", "0.5"], ["card40:1", "0.7"], ["card39:1", "0.9"], ["card38:1", "1.1"], ["card37:1", "1.3"], ["card76:1", "0.5"], ["challenge01:1", "0.5"], ["card350:1", "0.5"], ["card351:1", "0.5"], ["card132:1", "0.5"], ["challenge07:1", "0.5"], ["challenge06:1", "0.5"], ["challenge02:1", "0.5"], ["card353:1", "0.5"], ["card373:1", "0.5"], ["challenge11:1", "0.5"], ["challenge03:1", "0.5"], ["card4001:1", "8.4"], ["card4002:1", "8.4"], ["card4003:1", "8.2"], ["aw_empty:5", "10"], ["robo_dx:15", "10"], ["robo_dxb:15", "10"], ["3000gm", "28"]] }
+lotto: { id: "gasha_lotto", skip: 1, medal: "medal_ga2:1", items: [["ga2_cancer","0.9"],["goliath","0.009"],["phsword_n","0.009"],["ekg","0.009"],["accssaw_gold","0.009"],["devilclaw","0.009"],["bcloak","0.009"],["arcanaxiii","0.009"],["arcanax","0.009"],["arcanaiv","0.009"],["anubis","0.009"],["maahes","0.009"],["horus","0.009"],["5god_mjollnir","0.009"],["furaijin_fu","0.009"],["arcanavii","0.009"],["asura","0.009"],["5god_hermes","0.009"],["blackmg","0.009"],["cygnus","0.009"],["g_horn","0.009"],["steambp","0.009"],["naginata","0.009"],["arcanaxx","0.009"],["cyclops","0.009"],["5god_hepha","0.009"],["serket","0.009"],["jehuty","0.009"],["wadjet","0.009"],["funnelblade","0.009"],["nekhbet","0.009"],["two_largeswords","0.009"],["arcanaviii","0.009"],["lich","0.009"],["osiris","0.009"],["fire_gauntlet","0.009"],["belphegor","0.009"],["dark_wmace","0.009"],["mechasuit","0.009"],["heavygun","0.009"],["dwcolor","0.009"],["nidhogg","0.009"],["halteclere","0.009"],["d_shield","0.009"],["arcanaz","0.009"],["kusanagi","0.009"],["drider","0.009"],["big_arm","0.009"],["mechagun","0.009"],["fns","0.009"],["lkg","0.009"],["solais","0.009"],["science","0.009"],["parasite","0.009"],["sebek","0.009"],["fungus","0.009"],["gnoph","0.009"],["tengu","0.009"],["akki","0.009"],["guts","0.009"],["spidersuit","0.009"],["gram","0.009"],["bitmirror","0.009"],["egrab_fi","0.009"],["plasmash","0.009"],["sevenstar","0.009"],["fire_gauntlet_ice","0.009"],["souldouble","0.009"],["rudra","0.009"],["arcanaxvi_purple","0.009"],["twdgun","0.009"],["cnail","0.009"],["msger","0.009"],["wormblade_purple","0.009"],["totem","0.009"],["medal_gashapon:1","0.01"],["card41:1","0.5"],["card40:1","0.7"],["card39:1","0.9"],["card38:1","1.1"],["card37:1","1.3"],["card76:1","0.5"],["challenge01:1","0.5"],["card350:1","0.5"],["card351:1","0.5"],["card132:1","0.5"],["challenge07:1","0.5"],["challenge06:1","0.5"],["challenge02:1","0.5"],["card353:1","0.5"],["card373:1","0.5"],["challenge11:1","0.5"],["challenge03:1","0.5"],["card4001:1","8.4"],["card4002:1","8.4"],["card4003:1","8.2"],["aw_empty:5","10"],["robo_dx:15","10"],["robo_dxb:15","10"],["3000gm","32.924"]] },        activity: { id: "activity_event", skip: 0, medal: "medal_ga2:1", items: [["tao", "0.3"], ["ikkaku", "0.3"], ["swimring", "0.3"], ["dragon_master_blue", "0.3"], ["mechasuit", "0.3"], ["medal_ga2:5", "0"], ["treasurebox_element_card:1", "5"], ["card41:1", "0.5"], ["card40:1", "0.7"], ["card39:1", "0.9"], ["card38:1", "1.1"], ["card37:1", "1.3"], ["card76:1", "0.5"], ["challenge01:1", "0.5"], ["card350:1", "0.5"], ["card351:1", "0.5"], ["card132:1", "0.5"], ["challenge07:1", "0.5"], ["challenge06:1", "0.5"], ["challenge02:1", "0.5"], ["card353:1", "0.5"], ["card373:1", "0.5"], ["challenge11:1", "0.5"], ["challenge03:1", "0.5"], ["card4001:1", "8.4"], ["card4002:1", "8.4"], ["card4003:1", "8.2"], ["aw_empty:5", "10"], ["robo_dx:15", "10"], ["robo_dxb:15", "10"], ["3000gm", "28"]] }
     };
     const s = p[t]; document.getElementById('gashaName').value = s.id; document.getElementById('medalSkipCount').value = s.skip; document.getElementById('medalTxt').value = s.medal;
     resetLottoTableSilent(); s.items.forEach((item, i) => { if(i < 200) { document.querySelectorAll('.lotto-id')[i].value = item[0]; document.querySelectorAll('.lotto-ratio')[i].value = item[1]; handleLottoLookup(i, 'id'); } });
