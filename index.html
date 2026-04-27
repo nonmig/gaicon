@@ -170,12 +170,30 @@ input::placeholder {
 	   </div>
 
     <div id="lottoSection" class="hidden">
-        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:15px; margin-bottom: 10px;">
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1.5fr; gap:15px; margin-bottom: 10px;">
             <div>
                 <label style="color:#dc2626;">⭐ Gashapon Name</label>
                 <input id="gashaName" placeholder="oracle_event..." oninput="generate()">
             </div>
+<div>
+    <label style="color:#7c3aed;">🎟️ Medal ID โชว์การแลก</label>
+    <input id="gashaMedalId" placeholder="เช่น medal_gashapon" oninput="generate(); updateMedalPreview()">
 
+    <div id="medalPreviewWrap" style="margin-top:10px; display:none;">
+        <div style="display:grid; grid-template-columns: 1.6fr 70px; gap:8px;">
+            <div style="border:1px solid #d1d5db; background:#f9fafb; border-radius:8px; padding:8px;">
+                <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">Name</div>
+                <div id="medalPreviewName" style="font-size:12px; color:#111827; word-break:break-word;">-</div>
+            </div>
+
+            <div style="border:1px solid #d1d5db; background:#f9fafb; border-radius:8px; padding:8px; text-align:center;">
+                <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">Icon</div>
+                <img id="medalPreviewImg" src="" style="width:40px; height:40px; object-fit:contain; display:none; margin:auto;">
+                <div id="medalPreviewNoImg" style="font-size:11px; color:#9ca3af;">-</div>
+            </div>
+        </div>
+    </div>
+</div>
             <div>
                 <label style="color:#059669;">📋 dupindex</label>
                 <input id="gashaDupIndex" placeholder="ใส่เลข" oninput="generate(); updateDupindexPreview()">
@@ -217,8 +235,8 @@ input::placeholder {
 </div>
         
         <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px; margin-bottom:10px; background:#fff3cd; padding:15px; border-radius:10px; border:1px solid #ffeeba;">
-            <div><label>Suffix</label><input id="medalTxt" placeholder="medal2:1" oninput="generate()"></div>
-            <div><label>ข้ามแถวแรก</label><input id="medalSkipCount" type="number" value="5" min="0" oninput="generate()"></div>
+            <div><label>+ID medal : จำนวน เช่น medal_ga2:1</label><input id="medalTxt" placeholder="medal2:1" oninput="generate()"></div>
+            <div><label>แถวที่เริ่ม +idmeal</label><input id="medalSkipCount" type="number" value="5" min="0" oninput="generate()"></div>
         </div>
         <table class="lotto-table"><thead><tr><th class="col-idx">#</th><th class="col-action">Manage</th><th>ID String (Excel Paste)</th><th class="col-name-lotto">Name</th><th class="col-icon-img">Icon</th><th>Ratio (Sum: <span id="ratioSum">0</span>)</th></tr></thead><tbody id="lottoBody"></tbody></table>
     </div>
@@ -281,7 +299,7 @@ function switchTab(cat, el) {
     document.getElementById('idHint').classList.toggle('hidden', cat !== 'etcitem');
     etcsub.classList.toggle("hidden", cat !== "etcitem"); cardsub.classList.toggle("hidden", cat !== "card");
     let k = currentCat + (currentSub ? "_" + currentSub : ""); document.getElementById('lastnote').value = notes[k] || "";
-    showExtra(); generate(); updateDupindexPreview();
+    showExtra(); generate(); updateDupindexPreview(); updateMedalPreview();
 }
 
 function switchSub(s, el) { currentSub = s; document.querySelectorAll(".subbtn").forEach(b => b.classList.toggle("active", b.innerText.toLowerCase().includes(s))); let k = currentCat + (currentSub ? "_" + currentSub : ""); document.getElementById('lastnote').value = notes[k] || ""; showExtra(); generate(); }
@@ -357,11 +375,51 @@ function updateDupindexPreview() {
     }
 }
 
+function updateMedalPreview() {
+    const raw = document.getElementById('gashaMedalId')?.value.trim() || "";
+    const wrap = document.getElementById('medalPreviewWrap');
+    const nameText = document.getElementById('medalPreviewName');
+    const img = document.getElementById('medalPreviewImg');
+    const noImg = document.getElementById('medalPreviewNoImg');
+
+    if (!wrap || !nameText || !img || !noImg) return;
+
+    if (!raw) {
+        wrap.style.display = "none";
+        return;
+    }
+
+    wrap.style.display = "block";
+
+    const clean = raw.replace(/\s*x\s*\d+|:.*|_PERIOD.*/gi, '').trim().toLowerCase();
+    const f = dataList.find(d => (d.idname || "").toLowerCase() === clean);
+
+    if (f) {
+        nameText.textContent = f.name || "-";
+
+        if (f.tex) {
+            const iconName = f.tex.split('/').pop().replace('.tex', '');
+            img.src = `${ICON_BASE}${iconName}.png`;
+            img.style.display = "block";
+            noImg.style.display = "none";
+            img.onerror = () => {
+                img.style.display = "none";
+                noImg.style.display = "block";
+            };
+        }
+    } else {
+        nameText.textContent = "ไม่พบในฐานข้อมูล";
+        img.style.display = "none";
+        noImg.style.display = "block";
+    }
+}
+
 function generate() {
     let out = ""; const getV = (i) => document.getElementById(i).value; const fixI = (p) => (p && !p.startsWith("/")) ? "/" + p : p;
     if (currentCat === 'lotto') {
         const gName = document.getElementById('gashaName').value || "oracle_event";
         const dIdx = document.getElementById('gashaDupIndex').value || "";
+		const medalId = document.getElementById('gashaMedalId').value.trim();
         const suffix = document.getElementById('medalTxt').value.trim() ? "+" + document.getElementById('medalTxt').value.trim() : "";
         const skip = parseInt(document.getElementById('medalSkipCount').value) || 0;
         let nIds = [], sIds = [], ras = [], sum = 0;
@@ -380,7 +438,7 @@ if (rounded > 100) {
 } else {
     ratioSumEl.style.color = '#22c55e'; // เขียว
 }
-        out = `property.id=${sIds.join(',')}\nproperty.dupindex=${dIdx}\n\n# ITEM RATIO\nproperty.ratio=${ras.join(',')}\n\n# ANNOUNCE\nproperty.announce=0,1,2,3\n\n# MESSAGE\nproperty.message=ได้รับไอเทม [ %s ]!\n\n\n///////////////////////////////////////////////////////////////\n\n${gName}.prizelist=${nIds.join(',')}\n${gName}.graded=true\n${gName}.graded.border=0,1,2,3,4\n\n${gName}_meter.count=10,50,100,150,200,301\n${gName}_meter.prize=medal_ga2:1,medal_ga2:2,medal_ga2:3,5000rm,card_kaminari:1,sacc_bt_red+sub_card_saintthunder_r:1\n${gName}_meter.noloop=true`;
+        out = `property.id=${sIds.join(',')}\nproperty.dupindex=${dIdx}\n\n# ITEM RATIO\nproperty.ratio=${ras.join(',')}\n\n# ANNOUNCE\nproperty.announce=0,1,2,3\n\n# MESSAGE\nproperty.message=ได้รับไอเทม [ %s ]!\n\n\n///////////////////////////////////////////////////////////////\n\n${gName}.prizelist=${nIds.join(',')}\n${gName}.graded=true\n${gName}.graded.border=0,1,2,3,4${medalId ? `\n${gName}.medalid=${medalId}` : ""}\n\n${gName}_meter.count=10,50,100,150,200,301\n${gName}_meter.prize=medal_ga2:1,medal_ga2:2,medal_ga2:3,5000rm,card_kaminari:1,sacc_bt_red+sub_card_saintthunder_r:1\n${gName}_meter.noloop=true`;
     } else if (currentCat !== 'splitter' && currentCat !== 'gaicon') {
         const num = getV('number') || "X"; const n = getV('name') || ""; const idV = getV('id'); const d = getV('desc').replace(/\n/g, "\\n");
         if (currentCat=="coupon") out=`coupon${num}.id=${idV}\ncoupon${num}.name=${n}\ncoupon${num}.icon=${fixI(getV('icon'))}\ncoupon${num}.desc=${d}\ncoupon${num}.type=5\ncoupon${num}.value=0\ncoupon${num}.period=40`;
@@ -535,9 +593,15 @@ function loadExample() {
 function loadLottoPreset(t) {
   function buildPresetItems(s) {
     let items = [];
+	
 
     if (s.items) {
         return s.items;
+    }
+	
+	// ไอเทม featured ตัวแรก เช่น wirebit / ga2_cancer
+    if (s.featured) {
+        items.push(s.featured);
     }
 
     // กลุ่มไอเทมที่ต้องรวมกันเป็น featuredTotal
@@ -597,7 +661,7 @@ function loadLottoPreset(t) {
 
 /////////////////////
         amped: {
-            id: "amped_rare",
+            id: "oracle_rare_1",
             skip: 1,
             medal: "medal_ga2:1",
             filler: "3000gm",
@@ -630,15 +694,15 @@ function loadLottoPreset(t) {
         },
 
         lotto: {
-            id: "gasha_lotto",
+            id: "oracle_lotto_1",
             skip: 1,
             medal: "medal_ga2:1",
             filler: "3000gm",
 
-            featured: ["ga2_cancer", "0.9"],
+            featured: ["sfbike", "0.9"],
             poolRate: "0.009",
             pool: [
-                "goliath","phsword_n","ekg","accssaw_gold","devilclaw","bcloak","arcanaxiii","arcanax","arcanaiv","anubis",
+                "ga2_cancer","goliath","phsword_n","ekg","accssaw_gold","devilclaw","bcloak","arcanaxiii","arcanax","arcanaiv","anubis",
                 "maahes","horus","5god_mjollnir","furaijin_fu","arcanavii","asura","5god_hermes","blackmg","cygnus","g_horn",
                 "steambp","naginata","arcanaxx","cyclops","5god_hepha","serket","jehuty","wadjet","funnelblade","nekhbet",
                 "two_largeswords","arcanaviii","lich","osiris","fire_gauntlet","belphegor","dark_wmace","mechasuit","heavygun",
@@ -661,7 +725,7 @@ function loadLottoPreset(t) {
 
 //แก้free amped แก้ฟรีกาชาปอง oracle_rare_free rare_free
 free_amped: {
-    id: "free_amped",
+    id: "oracle_rare_free",
     skip: 0,
     medal: "",
     filler: "3000gm",
@@ -710,7 +774,7 @@ free_amped: {
 
 //แก้free lotto แก้ฟรีกาชาปอง แก้oracle_lotto_free lotto_free
 free_lotto: {
-    id: "free_lotto",
+    id: "oracle_lotto_free",
     skip: 0,
     medal: "",
     filler: "3000gm",
@@ -782,6 +846,8 @@ free_lotto: {
     document.getElementById('gashaName').value = s.id;
     document.getElementById('medalSkipCount').value = s.skip;
     document.getElementById('medalTxt').value = s.medal;
+	document.getElementById('gashaMedalId').value = (s.medal || "").split(":")[0] || "";
+updateMedalPreview();
 
     resetLottoTableSilent();
 
