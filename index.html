@@ -635,6 +635,7 @@ function loadLottoPreset(t) {
             id: "oracle_epic",
             skip: 5,
             medal: "medal_ga3:1",
+			medalId: "medal_ga3",
             items: [
                 ["gungnir_r2", "0.1"], ["gungnir_r", "0.2"], ["gungnir", "0.3"], ["mujun_gold", "0.2"], ["ga2_bsuit", "0.3"],
                 ["treasurebox_element_card:2", "6.6"], ["treasurebox_element_card:4", "5"],
@@ -663,7 +664,9 @@ function loadLottoPreset(t) {
         amped: {
             id: "oracle_rare_1",
             skip: 1,
-            medal: "medal_ga2:1",
+            medal: "",
+	
+			medalId: "medal_gashapon",
             filler: "3000gm",
 
             featured: ["wirebit", "0.9"],
@@ -696,7 +699,8 @@ function loadLottoPreset(t) {
         lotto: {
             id: "oracle_lotto_1",
             skip: 1,
-            medal: "medal_ga2:1",
+            medal: "",
+			medalId: "medal_gashapon",
             filler: "3000gm",
 
             featured: ["sfbike", "0.9"],
@@ -824,6 +828,7 @@ free_lotto: {
             id: "activity_event",
             skip: 0,
             medal: "medal_ga2:1",
+			medalId: "medal_ga2",
             items: [
                 ["tao", "0.3"], ["ikkaku", "0.3"], ["swimring", "0.3"], ["dragon_master_blue", "0.3"], ["mechasuit", "0.3"],
                 ["medal_ga2:5", "0"], ["treasurebox_element_card:1", "5"],
@@ -846,7 +851,7 @@ free_lotto: {
     document.getElementById('gashaName').value = s.id;
     document.getElementById('medalSkipCount').value = s.skip;
     document.getElementById('medalTxt').value = s.medal;
-	document.getElementById('gashaMedalId').value = (s.medal || "").split(":")[0] || "";
+	document.getElementById('gashaMedalId').value = s.medalId || "";
 updateMedalPreview();
 
     resetLottoTableSilent();
