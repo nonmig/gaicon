@@ -9,6 +9,8 @@ input::placeholder {
   font-style: italic;
 }
 
+
+
     :root {
         --primary: #2563eb; --bg-body: #f3f4f6; --bg-card: #ffffff;
         --text-main: #1f2937; --text-label: #4b5563; --border-color: #d1d5db;
@@ -118,7 +120,15 @@ input::placeholder {
     <div id="cardsub" class="subrow hidden"><div class="subbtn" onclick="switchSub('card', this)">🃏 Card Item</div><div class="subbtn" onclick="switchSub('effect', this)">✨ Effect Stat</div></div>
 
     <button id="mainLoadBtn" class="load-btn" onclick="loadExample()">⚡ Load Example Data</button>
-    <div id="status" style="font-size:11px; color:var(--primary); margin-bottom:5px;">กำลังโหลดฐานข้อมูล...</div>
+    <div style="font-size:11px; margin-bottom:5px;">
+  <span id="status" style="color:var(--primary);">กำลังโหลดฐานข้อมูล...</span>
+ <span onclick="refreshItems()" 
+      style="margin-left:8px; color:#059669; cursor:pointer; font-weight:bold;"
+      onmouseover="this.style.textDecoration='underline'"
+      onmouseout="this.style.textDecoration='none'">
+  🔄 รีเฟรช
+</span>
+</div>
 
     <div id="mainForm">
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
@@ -265,7 +275,56 @@ for (let i = 0; i < 200; i++) {
     lottoBody.appendChild(tr);
 }
 
-function loadItems() { fetch('https://api.sheety.co/304cd54879bb0d906b2be84eef9c4a75/dataGaIcon/sheet').then(res => res.json()).then(data => { dataList = data.sheet || []; document.getElementById('status').textContent = `✅ ฐานข้อมูลพร้อมใช้งาน`; }); }
+async function loadItems() {
+    const url = "https://script.google.com/macros/s/AKfycbzUF01t22A1XpRTwfd-MnG3vRfnA-TZdB-PNZlTzsmA_-7n612vQga9g_R2dlzoZtyT/exec";
+
+    try {
+        // 1) โหลดจาก cache ก่อน = เปิดเว็บแล้วไว
+        const cached = localStorage.getItem("ga_items");
+
+        if (cached) {
+            dataList = JSON.parse(cached);
+            document.getElementById('status').textContent =
+                `⚡ โหลดจาก Cache (${dataList.length} รายการ)`;
+        }
+
+        // 2) โหลดของใหม่จาก Google Sheet ทีหลัง
+        const res = await fetch(url);
+        const data = await res.json();
+
+        dataList = data.map(x => ({
+            number: x.number,
+            idname: x.idname,
+            name: x.name,
+            tex: x.tex,
+            accs: x.accs
+        }));
+
+        // 3) เก็บ cache ใหม่
+        localStorage.setItem("ga_items", JSON.stringify(dataList));
+
+        document.getElementById('status').textContent =
+            `✅ อัปเดตฐานข้อมูลแล้ว (${dataList.length} รายการ)`;
+
+    } catch (err) {
+        console.error(err);
+
+        if (dataList.length > 0) {
+            document.getElementById('status').textContent =
+                `⚡ ใช้ Cache เดิม (${dataList.length} รายการ)`;
+        } else {
+            document.getElementById('status').textContent =
+                "❌ โหลดฐานข้อมูลไม่สำเร็จ";
+        }
+    }
+}
+
+function refreshItems() {
+    localStorage.removeItem("ga_items");
+    dataList = [];
+    document.getElementById('status').textContent = "🔄 กำลังอัปเดตฐานข้อมูล...";
+    loadItems();
+}
 
 async function searchIcons() {
     const resultsDiv = document.getElementById('iconResults'); resultsDiv.innerHTML = '';
