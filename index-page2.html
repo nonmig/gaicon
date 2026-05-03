@@ -42,6 +42,16 @@
     max-width:1120px;
     margin:0 auto;
   }
+  .refresh-link {
+  color: #2563eb;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.refresh-link:hover {
+  text-decoration: underline;
+}
 
   .card{
     background:var(--card);
@@ -50,14 +60,41 @@
     box-shadow:0 14px 40px rgba(0,0,0,0.08);
   }
 
-  .topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-bottom:18px;
-  }
+.topbar{
+  display:flex;
+  flex-direction:column;   /* 👈 สำคัญ */
+  gap:14px;                /* 👈 ระยะห่าง */
+  margin-bottom:18px;
+}
+
+.left-group {
+  display:flex;
+}
+
+.mode-btn {
+  background: #3b82f6;        /* 🔵 น้ำเงิน */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+.mode-btn:hover {
+  background: #2563eb;
+}
+
+.mode-btn.active {
+  background: #1d4ed8;
+}
+
+.title-group {
+  text-align: center;
+  width: 100%;
+}
 
   h1{
     margin:0;
@@ -392,16 +429,24 @@
 <body>
   <div class="wrap">
     <div class="card">
-      <div class="topbar">
-        <div>
-          <h1>📝 index-page2</h1>
-          <p class="sub">หน้าแยกสำหรับ เรียงName ID และ รายชื่อการ์ด</p>
-        </div>
+<div class="topbar">
 
-        <button class="btn btn-secondary" onclick="location.href='index.html'">
-          ⬅ กลับหน้า index
-        </button>
-      </div>
+  <!-- title -->
+  <div class="title-group">
+    <h1>📝 Page 2</h1>
+    <p class="sub">หน้าแยกสำหรับ เรียงName ID และ รายชื่อการ์ด</p>
+  </div>
+
+  <!-- ปุ่ม (ย้ายลงมาใต้ title) -->
+  <div class="back-group">
+    <button class="btn btn-secondary" onclick="location.href='index.html'">
+      ⬅ กลับหน้า index
+    </button>
+  </div>
+
+</div>
+  <div>
+    </div>
 
       <div class="tab-row">
         <button class="tab-btn active" onclick="switchTab('nameid', this)">📝 เรียงName ID</button>
@@ -411,9 +456,12 @@
       <!-- NAME ID SECTION -->
       <div id="nameidSection">
         <div class="toolbar">
-          <button class="btn btn-primary" id="copyBtn" onclick="copyOutput()" disabled>📋 Copy Vertical</button>
+          
           <button class="btn btn-success" onclick="clearAll()">🗑 ล้างค่า</button>
           <div class="status" id="loadStatus">กำลังโหลดฐานข้อมูล...</div>
+		  <span onclick="loadDataFromAPI(true)" class="refresh-link">
+  🔄 รีเฟรช
+</span>
           <div class="copied" id="copyStatus" style="display:none;">✅ คัดลอกแล้ว</div>
         </div>
 
@@ -437,7 +485,22 @@
         </div>
 
         <div class="panel" style="margin-top:20px;">
-          <label for="outputArea">Output</label>
+       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+  
+  <label for="outputArea">Output</label>
+
+  <div style="display:flex; gap:6px; align-items:center;">
+
+    <button class="btn btn-secondary mode-btn" onclick="setOutputMode('id')">ID</button>
+    <button class="btn btn-secondary mode-btn" onclick="setOutputMode('name')">Name</button>
+
+    <button class="btn btn-primary" id="copyBtn" onclick="copyOutput()" disabled>
+      📋 Copy
+    </button>
+
+  </div>
+
+</div>
           <textarea id="outputArea" readonly placeholder="ผลลัพธ์จะขึ้นที่นี่"></textarea>
           <div class="helper">
             คัดลอกออกไปใช้งานได้เลย แบบ 1 บรรทัด ต่อ 1 รายการ
@@ -470,12 +533,15 @@
   <script>
     let dataList = [];
     let finalGalleryData = [];
+	let outputMode = "id"; // 👈 default = ID
+	const CACHE_KEY = "gaicon_data_v1";
 	const GITHUB_ICON_BASE = "https://raw.githubusercontent.com/nonmig/gaicon/main/images";
 
 function iconNameToGithubUrl(iconName) {
   if (!iconName) return "";
   return `${GITHUB_ICON_BASE}/${iconName}.png`;
 }
+
 
     const inputArea = document.getElementById('inputArea');
     const outputArea = document.getElementById('outputArea');
@@ -535,17 +601,57 @@ function iconNameToGithubUrl(iconName) {
       if (mods.quantity) out += `:${mods.quantity}`;
       return out;
     }
+	
+	function setOutputMode(mode) {
+  outputMode = mode;
+
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+
+  if (mode === "id") {
+    document.querySelectorAll('.mode-btn')[0].classList.add('active');
+  } else {
+    document.querySelectorAll('.mode-btn')[1].classList.add('active');
+  }
+
+  renderResults();
+}
 
     function findItem(query) {
-      if (!query) return null;
-      const cleanedQuery = cleanInput(query.toLowerCase());
+  if (!query) return null;
 
-      return dataList.find(item => {
-        const idClean = cleanInput((item.idname || '').toLowerCase());
-        const nameClean = cleanInput((item.name || '').toLowerCase());
-        return idClean === cleanedQuery || nameClean === cleanedQuery;
-      }) || null;
+  query = query.trim();
+
+  // 🔥 เงิน G / A / gm / rm
+  const moneyMatch = query.match(/^(\d+)\s*(g|a|gm|rm)$/i);
+  if (moneyMatch) {
+    const amount = moneyMatch[1];
+    const type = moneyMatch[2].toLowerCase();
+
+    let id = "";
+    let name = "";
+
+    if (type === "g" || type === "gm") {
+      id = `${amount}gm`;
+      name = `${amount}G`;
+    } else if (type === "a" || type === "rm") {
+      id = `${amount}rm`;
+      name = `${amount}A`;
     }
+
+    return {
+      idname: id,
+      name: name
+    };
+  }
+
+  const cleanedQuery = cleanInput(query.toLowerCase());
+
+  return dataList.find(item => {
+    const idClean = cleanInput((item.idname || '').toLowerCase());
+    const nameClean = cleanInput((item.name || '').toLowerCase());
+    return idClean === cleanedQuery || nameClean === cleanedQuery;
+  }) || null;
+}
 
     function renderResults() {
       results.innerHTML = '';
@@ -574,7 +680,11 @@ function iconNameToGithubUrl(iconName) {
         }
 
         const finalId = buildFinalId(found.idname, mods);
-        outputLines.push(finalId);
+        if (outputMode === "id") {
+  outputLines.push(finalId);
+} else {
+  outputLines.push(found.name);
+}
 
         const card = document.createElement('div');
         card.className = 'item-card';
@@ -651,6 +761,43 @@ function iconNameToGithubUrl(iconName) {
       const match = texPath.match(regex);
       return match ? match[1] : null;
     }
+	
+	function setupData(data) {
+  dataList = data
+    .filter(item => item.idname && item.name)
+    .map(item => ({
+      idname: String(item.idname),
+      name: String(item.name),
+      tex: item.tex ? String(item.tex) : ''
+    }));
+
+  finalGalleryData = targetCardIDs.map(targetId => {
+    const foundItem = data.find(item =>
+      item.idname && item.idname.toLowerCase() === targetId.toLowerCase()
+    );
+
+    if (foundItem) {
+      return {
+        id: String(foundItem.idname),
+        name: String(foundItem.name),
+        icon: extractIconName(foundItem.tex) || String(foundItem.idname)
+      };
+    }
+
+    return {
+      id: targetId,
+      name: targetId.replace(/_/g, ' ').toUpperCase(),
+      icon: targetId
+    };
+  });
+
+  inputArea.disabled = false;
+  searchInput.disabled = false;
+
+outputMode = "id";   // 👈 บังคับ default
+renderResults();
+renderGallery();
+}
 
     function renderGallery(filterText = '') {
       const gallery = document.getElementById('cardGallery');
@@ -705,65 +852,49 @@ function iconNameToGithubUrl(iconName) {
       });
     }
 
-    function loadDataFromAPI() {
-      loadStatus.textContent = 'กำลังโหลดฐานข้อมูล...';
-      cardLoadStatus.textContent = '⏳ กำลังโหลดรายชื่อการ์ด...';
-      inputArea.disabled = true;
-      searchInput.disabled = true;
+   function loadDataFromAPI(forceRefresh = false) {
+  loadStatus.textContent = 'กำลังโหลดฐานข้อมูล...';
+  cardLoadStatus.textContent = '⏳ กำลังโหลดรายชื่อการ์ด...';
+  inputArea.disabled = true;
+  searchInput.disabled = true;
 
-      fetch('https://api.sheety.co/304cd54879bb0d906b2be84eef9c4a75/dataGaIcon/sheet')
-        .then(res => res.json())
-        .then(data => {
-          if (data && Array.isArray(data.sheet)) {
-            dataList = data.sheet
-              .filter(item => item.idname && item.name)
-              .map(item => ({
-                idname: String(item.idname),
-                name: String(item.name),
-                tex: item.tex ? String(item.tex) : ''
-              }));
+  // 🔥 โหลดจาก cache ก่อน
+  if (!forceRefresh) {
+    const cache = localStorage.getItem(CACHE_KEY);
+    if (cache) {
+      const data = JSON.parse(cache);
+      setupData(data);
 
-            finalGalleryData = targetCardIDs.map(targetId => {
-              const foundItem = data.sheet.find(item =>
-                item.idname && item.idname.toLowerCase() === targetId.toLowerCase()
-              );
-
-              if (foundItem) {
-                return {
-                  id: String(foundItem.idname),
-                  name: String(foundItem.name),
-                  icon: extractIconName(foundItem.tex) || String(foundItem.idname)
-                };
-              }
-
-              return {
-                id: targetId,
-                name: targetId.replace(/_/g, ' ').toUpperCase(),
-                icon: targetId
-              };
-            });
-
-            setReadyStatus(`พร้อมใช้งานแล้ว (${dataList.length} รายการ)`);
-            cardLoadStatus.textContent = `✅ โหลดรายชื่อการ์ดสำเร็จ ${finalGalleryData.length} ใบ`;
-            searchInput.disabled = false;
-
-            renderResults();
-            renderGallery();
-          } else {
-            loadStatus.textContent = 'ไม่พบข้อมูลที่ถูกต้องจาก API';
-            cardLoadStatus.textContent = '❌ ไม่พบข้อมูลการ์ดจาก API';
-            inputArea.disabled = true;
-            searchInput.disabled = true;
-          }
-        })
-        .catch(error => {
-          console.error(error);
-          loadStatus.textContent = 'โหลด API ไม่สำเร็จ';
-          cardLoadStatus.textContent = '❌ เกิดข้อผิดพลาดในการโหลดข้อมูลการ์ด';
-          inputArea.disabled = true;
-          searchInput.disabled = true;
-        });
+      loadStatus.innerHTML = `โหลดจาก Cache (${data.length} รายการ)`;
+      cardLoadStatus.textContent = `✅ โหลดการ์ดจาก Cache ${data.length} รายการ`;
+      return;
     }
+  }
+
+  // 🔥 โหลดจาก API
+  fetch('https://script.google.com/macros/s/AKfycbzUF01t22A1XpRTwfd-MnG3vRfnA-TZdB-PNZlTzsmA_-7n612vQga9g_R2dlzoZtyT/exec')
+    .then(res => res.json())
+    .then(data => {
+
+      if (Array.isArray(data)) {
+
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+
+        setupData(data);
+
+        loadStatus.innerHTML = `โหลดจาก API (${data.length} รายการ)`;
+        cardLoadStatus.textContent = `✅ โหลดการ์ดสำเร็จ ${data.length} รายการ`;
+
+      } else {
+        loadStatus.textContent = 'ไม่พบข้อมูล';
+      }
+
+    })
+    .catch(err => {
+      console.error(err);
+      loadStatus.textContent = 'โหลด API ไม่สำเร็จ';
+    });
+}
 
     loadDataFromAPI();
   </script>

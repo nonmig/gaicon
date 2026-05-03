@@ -2,7 +2,8 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Game Config Generator - Master Final V21.8</title>
+<title>Game Config Generator</title>
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
 <style>
 input::placeholder {
   color: #9ca3af;
@@ -36,7 +37,7 @@ input::placeholder {
     .btn-save-note { background: #f59e0b; border: none; border-radius: 8px; color: #fff; padding: 0 15px; height: 38px; cursor: pointer; font-weight: bold; }
     .save-success { color: #059669; font-weight: bold; display: none; font-size: 18px; }
 
-    .action-header { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; margin-bottom: 5px; }
+    .action-header { display: block; justify-content: space-between; align-items: flex-end; margin-top: 20px; margin-bottom: 5px; }
     .load-btn { width: 100%; padding: 12px; background: #6b7280; border: none; border-radius: 10px; color: white; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
     .copy-btn { padding: 8px 25px; background: var(--primary); border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold; }
     .copy-status { color: var(--accent); font-size: 12px; font-weight: bold; margin-top: 5px; display: none; }
@@ -256,7 +257,10 @@ input::placeholder {
 
     <div class="action-header" id="outputHeader">
         <span style="font-weight:bold; color:var(--primary); font-size: 14px;">Output Preview</span>
-        <div style="text-align:right;"><button class="copy-btn" onclick="copyOutput()">📋 Copy Config</button><div id="outStatus" class="copy-status">✅ คัดลอกเรียบร้อย!</div></div>
+        <div style="text-align:right;"> <button class="copy-btn" onclick="copyLottoExcel365()">📊 Copy Excel (365/Web)</button>
+        <button class="copy-btn" onclick="copyLottoExcelBasic()">📋 Copy Excel</button>
+		<button class="copy-btn" onclick="exportLottoXlsx()">🖼️ Export XLSX รูปจริง</button>
+        <button class="copy-btn" onclick="copyOutput()">📋 Copy Config</button><div id="outStatus" class="copy-status">✅ คัดลอกเรียบร้อย!</div></div>
     </div>
     <textarea id="output" readonly></textarea>
 </div>
@@ -515,11 +519,50 @@ if (rounded > 100) {
 
 function handleLottoLookup(idx, type) {
     const rId = document.querySelectorAll('.lotto-id')[idx];
+	
     const rName = document.querySelectorAll('.lotto-name-disp')[idx];
     const rImg = document.querySelectorAll('.lotto-img-preview')[idx];
     if(!rId) return;
 
-    const val = (type==='id'?rId.value:rName.value).replace(/\s*x\s*\d+|:.*|_PERIOD.*/gi,'').trim().toLowerCase();
+    const val = (type === 'id' ? rId.value : rName.value)
+    .replace(/:\d+/g, '')
+    .replace(/_PERIOD\d+/gi, '')
+    .replace(/\s*x\s*\d+/gi, '')
+    .trim()
+    .toLowerCase();
+	// 🔥 รองรับเงิน G / A / gm / rm
+const moneyMatch = val.match(
+    type === 'id'
+        ? /^(\d+)\s*(gm|rm)$/i
+        : /^(\d+)\s*(g|a|gm|rm)$/i
+);
+if (moneyMatch) {
+    const amount = moneyMatch[1];
+    const t = moneyMatch[2].toLowerCase();
+
+    if (t === "g" || t === "gm") {
+        rId.value = `${amount}gm`;
+        rName.value = `${amount}G`;
+
+        // 🔥 เงินธรรมดา → เหรียญเงิน
+        rImg.src = `${ICON_BASE}coin_silver.png`;
+        rImg.style.display = "inline";
+
+    } else {
+        rId.value = `${amount}rm`;
+        rName.value = `${amount}A`;
+
+        // 🔥 เงินแคช → เหรียญทอง
+        rImg.src = `${ICON_BASE}coin_gold.png`;
+        rImg.style.display = "inline";
+    }
+
+    rImg.onerror = () => rImg.style.display = "none";
+
+    generate();
+    updateDupindexPreview();
+    return;
+}
 
     if (val) {
         const f = dataList.find(d => ((type==='id'?d.idname:d.name)||"").toLowerCase() === val);
@@ -624,6 +667,189 @@ function resetLottoTableSilent() {
 function processSplitter() { const input = document.getElementById('splitterInput').value; const preview = document.getElementById('splitterPreview'); const vertical = input.split(',').map(i => i.trim()).filter(i => i !== "").join('\n'); preview.innerText = vertical; preview.style.display = vertical ? 'block' : 'none'; document.getElementById('splitterPreviewLabel').style.display = vertical ? 'block' : 'none'; }
 function copySplitter() { const t = document.getElementById('splitterPreview').innerText; if(!t) return; navigator.clipboard.writeText(t).then(() => { const st = document.getElementById('splitStatus'); st.style.display='block'; setTimeout(()=>st.style.display='none',2000); }); }
 function copyOutput() { const o = document.getElementById('output'); navigator.clipboard.writeText(o.value).then(() => { const st = document.getElementById('outStatus'); st.style.display='block'; setTimeout(()=>st.style.display='none',2000); }); }
+function copyOutput() { 
+    const o = document.getElementById('output'); 
+    navigator.clipboard.writeText(o.value).then(() => { 
+        const st = document.getElementById('outStatus'); 
+        st.style.display='block'; 
+        setTimeout(()=>st.style.display='none',2000); 
+    }); 
+}
+function showCopyStatus(msg) {
+    const st = document.getElementById('outStatus');
+    st.innerText = msg;
+    st.style.display = 'block';
+
+    setTimeout(() => {
+        st.style.display = 'none';
+        st.innerText = "✅ คัดลอกเรียบร้อย!";
+    }, 2000);
+}
+
+// 👇 วางตรงนี้เลย
+function copyLottoExcel365() {
+    if (currentCat !== 'lotto') return;
+
+    const ids = document.querySelectorAll('.lotto-id');
+    const names = document.querySelectorAll('.lotto-name-disp');
+    const ratios = document.querySelectorAll('.lotto-ratio');
+    const imgs = document.querySelectorAll('.lotto-img-preview');
+
+    let rows = [];
+    rows.push(["No", "ID String", "Name", "Image", "Ratio"].join("\t"));
+
+    ids.forEach((el, i) => {
+        const id = el.value.trim();
+        const name = names[i].value.trim();
+        const ratio = ratios[i].value.trim();
+
+        let imageUrl = "";
+        if (imgs[i] && imgs[i].style.display !== "none") {
+            imageUrl = imgs[i].src || "";
+        }
+
+        const imageFormula = imageUrl ? `=IMAGE("${imageUrl}")` : "";
+
+        if (id || name || ratio) {
+            rows.push([i, id, name, imageFormula, ratio].join("\t"));
+        }
+    });
+
+    navigator.clipboard.writeText(rows.join("\n")).then(() => {
+        showCopyStatus("✅ คัดลอกสำหรับ Excel 365/Web แล้ว!");
+    });
+}
+
+function copyLottoExcelBasic() {
+    if (currentCat !== 'lotto') return;
+
+    const ids = document.querySelectorAll('.lotto-id');
+    const names = document.querySelectorAll('.lotto-name-disp');
+    const ratios = document.querySelectorAll('.lotto-ratio');
+    const imgs = document.querySelectorAll('.lotto-img-preview');
+
+    let rows = [];
+    rows.push(["No", "ID String", "Name", "Image URL", "Ratio"].join("\t"));
+
+    ids.forEach((el, i) => {
+        const id = el.value.trim();
+        const name = names[i].value.trim();
+        const ratio = ratios[i].value.trim();
+
+        let imageUrl = "";
+        if (imgs[i] && imgs[i].style.display !== "none") {
+            imageUrl = imgs[i].src || "";
+        }
+
+        if (id || name || ratio) {
+            rows.push([i, id, name, imageUrl, ratio].join("\t"));
+        }
+    });
+
+    navigator.clipboard.writeText(rows.join("\n")).then(() => {
+        showCopyStatus("✅ คัดลอกสำหรับ Excel แล้ว!");
+    });
+}
+
+async function imageUrlToBase64(url) {
+    const res = await fetch(url);
+    const blob = await res.blob();
+
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+    });
+}
+
+async function exportLottoXlsx() {
+    if (currentCat !== 'lotto') return;
+
+    showCopyStatus("⏳ กำลังสร้างไฟล์ Excel...");
+
+    const workbook = new ExcelJS.Workbook();
+    const ws = workbook.addWorksheet("Gashapon");
+
+    ws.columns = [
+        { header: "No", key: "no", width: 8 },
+        { header: "ID String", key: "id", width: 28 },
+        { header: "Name", key: "name", width: 35 },
+        { header: "Image", key: "image", width: 12 },
+        { header: "Ratio", key: "ratio", width: 12 },
+       
+    ];
+
+    const ids = document.querySelectorAll('.lotto-id');
+    const names = document.querySelectorAll('.lotto-name-disp');
+    const ratios = document.querySelectorAll('.lotto-ratio');
+    const imgs = document.querySelectorAll('.lotto-img-preview');
+
+    let excelRow = 2;
+
+    for (let i = 0; i < ids.length; i++) {
+        const id = ids[i].value.trim();
+        const name = names[i].value.trim();
+        const ratio = ratios[i].value.trim();
+
+        if (!id && !name && !ratio) continue;
+
+        let imageUrl = "";
+        if (imgs[i] && imgs[i].style.display !== "none") {
+            imageUrl = imgs[i].src || "";
+        }
+
+        ws.addRow({
+            no: i,
+            id,
+            name,
+            ratio,
+           
+        });
+
+ws.getColumn(4).width = 10;
+ws.getRow(excelRow).height = 28;
+ws.getCell(`D${excelRow}`).alignment = {
+    vertical: "middle",
+    horizontal: "center"
+};
+
+        if (imageUrl) {
+            try {
+                const base64 = await imageUrlToBase64(imageUrl);
+                const imageId = workbook.addImage({
+                    base64,
+                    extension: "png"
+                });
+
+           ws.addImage(imageId, {
+    tl: { col: 3.35, row: excelRow - 1 + 0.15 },
+    ext: { width: 32, height: 32 }
+});
+            } catch (err) {
+                console.warn("โหลดรูปไม่ได้:", imageUrl, err);
+            }
+        }
+
+        excelRow++;
+    }
+
+    ws.getRow(1).font = { bold: true };
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "gashapon_export.xlsx";
+    a.click();
+
+    URL.revokeObjectURL(a.href);
+
+    showCopyStatus("✅ Export Excel พร้อมรูปแล้ว!");
+}
 function saveNote() { let k = currentCat + (currentSub ? "_" + currentSub : ""); notes[k] = document.getElementById('lastnote').value; localStorage.setItem("game_tool_notes_v21.8", JSON.stringify(notes)); const ch = document.getElementById('saveCheck'); ch.style.display = 'inline'; setTimeout(() => { ch.style.display = 'none'; }, 2000); }
 function updateData() { generate(); }
 function fill(n, i, na, ic, de) { document.getElementById('number').value = n; document.getElementById('id').value = i; document.getElementById('name').value = na; document.getElementById('icon').value = ic; document.getElementById('desc').value = de; }
