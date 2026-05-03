@@ -451,6 +451,7 @@
       <div class="tab-row">
         <button class="tab-btn active" onclick="switchTab('nameid', this)">📝 เรียงName ID</button>
         <button class="tab-btn" onclick="switchTab('cardlist', this)">🃏 รายชื่อการ์ด</button>
+		<button class="tab-btn" onclick="switchTab('setting', this)">⚙️ Setting</button>
       </div>
 
       <!-- NAME ID SECTION -->
@@ -527,6 +528,20 @@
           <div class="gallery" id="cardGallery"></div>
         </div>
       </div>
+	<!-- SETTING SECTION -->
+<div id="settingSection" class="hidden">
+  <div class="panel">
+    <h3 style="margin-top:0; color:var(--primary-dark);">⚙️ Setting Preset</h3>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="openSettingPreset('KR')">KR</button>
+      <button class="btn btn-primary" onclick="openSettingPreset('TH')">TH</button>
+      <button class="btn btn-primary" onclick="openSettingPreset('JP')">JP</button>
+      <button class="btn btn-primary" onclick="openSettingPreset('CN')">CN</button>
+      <button class="btn btn-primary" onclick="openSettingPreset('TW')">TW</button>
+    </div>
+  </div>
+</div>
     </div>
   </div>
 
@@ -534,6 +549,7 @@
     let dataList = [];
     let finalGalleryData = [];
 	let outputMode = "id"; // 👈 default = ID
+	let currentServer = localStorage.getItem("gaicon_server_preset") || "TH";
 	const CACHE_KEY = "gaicon_data_v1";
 	const GITHUB_ICON_BASE = "https://raw.githubusercontent.com/nonmig/gaicon/main/images";
 
@@ -561,6 +577,7 @@ function iconNameToGithubUrl(iconName) {
 
       document.getElementById('nameidSection').classList.toggle('hidden', tab !== 'nameid');
       document.getElementById('cardlistSection').classList.toggle('hidden', tab !== 'cardlist');
+	  document.getElementById('settingSection').classList.toggle('hidden', tab !== 'setting');
     }
 
     function cleanInput(text) {
@@ -571,6 +588,26 @@ function iconNameToGithubUrl(iconName) {
       text = text.replace(/\b\d+\s*(d|day|days)\b/gi, '');
       return text.trim();
     }
+	
+	function setServerPreset(server) {
+  currentServer = server;
+  localStorage.setItem("gaicon_server_preset", server);
+
+  const el = document.getElementById("currentServerText");
+  if (el) el.textContent = server;
+
+  alert("เลือก Server Preset: " + server);
+}
+
+function openSettingPreset(server) {
+  localStorage.setItem("gaicon_server_preset", server);
+
+  window.open(
+    "./setting-viewer.html?server=" + encodeURIComponent(server),
+    "settingViewer", // 👈 ชื่อ window
+    "width=1200,height=800,resizable=yes,scrollbars=yes"
+  );
+}
 
     function parseModifiers(rawLine) {
       const lower = rawLine.toLowerCase();
@@ -895,6 +932,11 @@ renderGallery();
       loadStatus.textContent = 'โหลด API ไม่สำเร็จ';
     });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("currentServerText");
+  if (el) el.textContent = currentServer;
+});
 
     loadDataFromAPI();
   </script>
