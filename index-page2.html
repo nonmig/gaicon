@@ -460,8 +460,7 @@
       <div class="tab-row">
         <button class="tab-btn active" onclick="switchTab('nameid', this)">📝 เรียงName ID</button>
         <button class="tab-btn" onclick="switchTab('cardlist', this)">🃏 รายชื่อการ์ด</button>
-        <button class="tab-btn" onclick="switchTab('comment', this)">💬 เติม/ลบ //</button>
-        <button class="tab-btn" onclick="switchTab('renumber', this)">🔢 เปลี่ยนเลขชุด</button>
+        <button class="tab-btn" onclick="switchTab('utility', this)">🛠️ เติม//,แก้เลข</button>
 		<button class="tab-btn" onclick="switchTab('setting', this)">⚙️ Setting</button>
       </div>
 
@@ -539,64 +538,33 @@
           <div class="gallery" id="cardGallery"></div>
         </div>
       </div>
-      <!-- COMMENT TOOL SECTION -->
-      <div id="commentSection" class="hidden">
+      <!-- UTILITY SECTION -->
+      <div id="utilitySection" class="hidden">
         <div class="panel">
-          <h3 style="margin-top:0; color:var(--primary-dark);">💬 เติม / ลบ //</h3>
+          <h3 style="margin-top:0; color:var(--primary-dark);">🛠️ Utility</h3>
 
-          <label for="commentInput">กรอกข้อความทีละบรรทัด</label>
+          <label for="utilityInput">Input</label>
           <textarea
-            id="commentInput"
-            placeholder="ตัวอย่าง&#10;shopitem2=oracle_summer2026_1,0,1000&#10;shopitem2.category=1,3&#10;shopitem2.category=best"
-          ></textarea>
-
-          <div class="toolbar" style="margin-top:14px; margin-bottom:0;">
-            <button class="btn btn-primary" onclick="setCommentMode('add')">➕ เติม //</button>
-            <button class="btn btn-secondary" onclick="setCommentMode('remove')">➖ ลบ //</button>
-            <button class="btn btn-success" onclick="copyCommentOutput()">📋 Copy</button>
-            <button class="btn btn-secondary" onclick="clearCommentTool()">🗑 ล้างค่า</button>
-            <div class="copied" id="commentCopyStatus" style="display:none;">✅ คัดลอกแล้ว</div>
-          </div>
-
-          <div class="helper">
-            เติม // จะเติมหน้าทุกบรรทัด / ลบ // จะลบเฉพาะบรรทัดที่มี // อยู่ด้านหน้า
-          </div>
-        </div>
-
-        <div class="panel" style="margin-top:20px;">
-          <label for="commentOutput">Output</label>
-          <textarea id="commentOutput" class="dark-output" readonly placeholder="ผลลัพธ์จะขึ้นที่นี่"></textarea>
-        </div>
-      </div>
-
-
-      <!-- RENUMBER TOOL SECTION -->
-      <div id="renumberSection" class="hidden">
-        <div class="panel">
-          <h3 style="margin-top:0; color:var(--primary-dark);">🔢 เปลี่ยนเลขชุด</h3>
-
-          <label for="renumberInput">กรอก config ที่ต้องการเปลี่ยนเลข</label>
-          <textarea
-            id="renumberInput"
-            placeholder="ตัวอย่าง&#10;newcombine736.id=challenger_36&#10;newcombine736.name=Carpenter Kit Combination&#10;newcombine736.ratio=100"
+            id="utilityInput"
+            placeholder="ตัวอย่าง เติม/ลบ //&#10;shopitem2=oracle_summer2026_1,0,1000&#10;shopitem2.category=1,3&#10;&#10;ตัวอย่างเปลี่ยนเลขชุด&#10;newcombine736.id=challenger_36&#10;newcombine736.name=Carpenter Kit Combination"
           ></textarea>
 
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:14px;">
             <div>
-              <label for="renumberFrom">เลขเดิม</label>
+              <label for="utilityFromNumber">เลขเดิม</label>
               <input
                 type="text"
-                id="renumberFrom"
+                id="utilityFromNumber"
                 class="search-box"
                 placeholder="เช่น 736"
                 style="margin-bottom:0;"
               >
             </div>
             <div>
-              <label for="renumberTo">เลขใหม่</label>
+              <label for="utilityToNumber">เลขใหม่</label>
               <input
                 type="text"
-                id="renumberTo"
+                id="utilityToNumber"
                 class="search-box"
                 placeholder="เช่น 777"
                 style="margin-bottom:0;"
@@ -605,21 +573,25 @@
           </div>
 
           <div class="toolbar" style="margin-top:14px; margin-bottom:0;">
-            <button class="btn btn-primary" onclick="convertRenumberTool()">🔁 แปลงเลข</button>
-            <button class="btn btn-success" onclick="copyRenumberOutput()">📋 Copy</button>
-            <button class="btn btn-secondary" onclick="clearRenumberTool()">🗑 ล้างค่า</button>
-            <div class="copied" id="renumberCopyStatus" style="display:none;">✅ คัดลอกแล้ว</div>
+            <button class="btn btn-primary" onclick="utilityAddComment()">➕ เติม //</button>
+            <button class="btn btn-secondary" onclick="utilityRemoveComment()">➖ ลบ //</button>
+            <button class="btn btn-primary" onclick="utilityRenumber()">🔢 เปลี่ยนเลขชุด</button>
+            <button class="btn btn-primary" onclick="utilityRenumberAddComment()">🔢➕ เปลี่ยนเลขชุด + เพิ่ม //</button>
+            <button class="btn btn-secondary" onclick="utilityRenumberRemoveComment()">🔢➖ เปลี่ยนเลขชุด + ลบ //</button>
+            <button class="btn btn-success" onclick="copyUtilityOutput()">📋 Copy</button>
+            <button class="btn btn-secondary" onclick="clearUtilityTool()">🗑 ล้างค่า</button>
+            <div class="copied" id="utilityCopyStatus" style="display:none;">✅ คัดลอกแล้ว</div>
           </div>
 
           <div class="helper">
-            ระบบจะเปลี่ยนเฉพาะเลขที่อยู่ใน key ก่อน . หรือก่อน = เช่น shopitem3 / newcombine736 เท่านั้น ไม่ยุ่งกับเลขใน value ด้านหลัง =
+            ใช้ Input เดียวกันทั้งหมด: เติม //, ลบ //, เปลี่ยนเลขชุด หรือเปลี่ยนเลขชุดพร้อมเพิ่ม/ลบ // โดยระบบจะจับเลขเดิมจากบรรทัดแรกให้อัตโนมัติถ้าไม่กรอก
           </div>
-          <div id="renumberStatus" class="notfound"></div>
+          <div id="utilityStatus" class="notfound"></div>
         </div>
 
         <div class="panel" style="margin-top:20px;">
-          <label for="renumberOutput">Output</label>
-          <textarea id="renumberOutput" class="dark-output" readonly placeholder="ผลลัพธ์จะขึ้นที่นี่"></textarea>
+          <label for="utilityOutput">Output</label>
+          <textarea id="utilityOutput" class="dark-output" readonly placeholder="ผลลัพธ์จะขึ้นที่นี่"></textarea>
         </div>
       </div>
 
@@ -663,15 +635,12 @@ function iconNameToGithubUrl(iconName) {
     const loadStatus = document.getElementById('loadStatus');
     const cardLoadStatus = document.getElementById('cardLoadStatus');
     const searchInput = document.getElementById('searchInput');
-    const commentInput = document.getElementById('commentInput');
-    const commentOutput = document.getElementById('commentOutput');
-    const commentCopyStatus = document.getElementById('commentCopyStatus');
-    const renumberInput = document.getElementById('renumberInput');
-    const renumberFrom = document.getElementById('renumberFrom');
-    const renumberTo = document.getElementById('renumberTo');
-    const renumberOutput = document.getElementById('renumberOutput');
-    const renumberStatus = document.getElementById('renumberStatus');
-    const renumberCopyStatus = document.getElementById('renumberCopyStatus');
+    const utilityInput = document.getElementById('utilityInput');
+    const utilityOutput = document.getElementById('utilityOutput');
+    const utilityFromNumber = document.getElementById('utilityFromNumber');
+    const utilityToNumber = document.getElementById('utilityToNumber');
+    const utilityStatus = document.getElementById('utilityStatus');
+    const utilityCopyStatus = document.getElementById('utilityCopyStatus');
 
     const targetCardIDs = "10thcard 6wings_remake_card astronaut_card bet_1 bet_2 bet_3 bet_4 bet_5 bet_6 bet_7 bet_8 birthday2019 birthday2020 birthday2021 birthday2022 birthday2023 birthday2024 birthday2025 brithday2008 brithday2018 c1001 c1002 c1003 c1004 c1005 card01 card02 card03 card04 card05 card06 card07 card08 card09 card10 card100 card1001 card1002 card1003 card1004 card1005 card1006 card1007 card1008 card101 card102 card103 card104 card105 card106 card107 card108 card109 card11 card110 card111 card112 card113 card114 card115 card116 card117 card118 card119 card12 card120 card120_evo card121 card122 card123 card124 card125 card126 card127 card128 card129 card13 card130 card131 card132 card132_evo card133 card134 card135 card136 card14 card15 card16 card17 card18 card19 card20 card2009 card2010 card2011 card2012 card2013 card2014 card2015 card2016 card21 card22 card23 card24 card25 card26 card27 card28 card29 card30 card3001 card3002 card3003 card3004 card3005 card3006 card3007 card3008 card3009 card3010 card3011 card3012 card3013 card31 card32 card33 card34 card35 card350 card351 card352 card353 card354 card355 card356 card357 card358 card359 card36 card360 card361 card362 card363 card364 card365 card366 card367 card368 card369 card37 card370 card371 card372 card373 card374 card375 card376 card378 card379 card37_evo card38 card380 card381 card382 card383 card384 card38_evo card39 card39_evo card40 card4001 card4002 card4003 card40_evo card41 card41_evo card56 card57 card57_evo card58 card58_evo card60 card61 card62 card63 card64 card65 card66 card67 card68 card69 card70 card71 card72 card73 card74 card75 card76 card76_evo card77 card78 card79 card80 card81 card82 card83 card84 card85 card86 card87 card88 card89 card90 card91 card92 card93 card94 card95 card96 card97 card98 card99 card_amon card_bcloak_remake card_byakko card_chny2015 card_climber card_daddy2014 card_divine_byakko card_divine_genbu card_divine_seiryu card_divine_suzaku cardeuro2012 card_fanpantae2015 card_fb01 card_fb02 card_fb03 card_fb04 card_genbu cardgsf card_kaminari card_labyrin100 cardmom_2014 cardmvp card_ocean cardrun01 card_seiryu cardshop01 cardshop02 cardshop03 cardshop04 cardshop05 cardshop06 cardshop07 cardshop08 cardshop09 cardshop10 cardshop11 cardshop12 cardshop13 cardshop14 cardshop15 cardshop16 cardshop17 cardshop18 cardshop19 cardshop20 cardshop21 cardshop22 cardshop23 cardshop24 cardshop27 cardshop28 cardshop29 cardshop30 cardshop31 cardshop32 cardshop33 card_skullaxe_gold2 cardstorngitem1 card_summer_2020 card_summer_2021 card_suzaku card_uroboros card_xmas2014_1 card_xmas2014_2 card_xmas2014_3 card_xmas2014_4 card_xmas2014_5 card_xmas2014_6 challenge01 challenge01_evo challenge02 challenge02_evo challenge03 challenge03_evo challenge04 challenge05 challenge06 challenge06_evo challenge07 challenge08 challenge11 challenge12 challenge13 challenge13_evo chinesenewyear2016 fake_birthday2020 fake_birthday2024 fakeflammecard firepower4 fireprotect4 flammecard governor_1 governor_2 governor_3 governor_4 governor_5 governor_6 governor_7 governor_8 halloween2016 hlw2018 huntercard01 huntercard02 huntercard03 huntercard04 huntercard05 huntercard06 huntercard07 huntercard08 huntercard09 huntercard10 legendofgm lifeinsurance losercard01 loykathong2013 loykrathong_2021 material_cut01 material_cut01_1 material_cut01_10 material_cut01_2 material_cut01_3 material_cut01_4 material_cut01_5 material_cut01_6 material_cut01_7 material_cut01_8 material_cut01_9 material_cut01_high material_cut01_random_47 material_cut01_random_58 material_cut01_random_69 material_cut02 material_cut02_1 material_cut02_10 material_cut02_2 material_cut02_3 material_cut02_4 material_cut02_5 material_cut02_6 material_cut02_7 material_cut02_8 material_cut02_9 material_cut02_high material_cut02_random_47 material_cut02_random_58 material_cut02_random_69 material_dark01 material_dark01_1 material_dark01_10 material_dark01_2 material_dark01_3 material_dark01_4 material_dark01_5 material_dark01_6 material_dark01_7 material_dark01_8 material_dark01_9 material_dark01_high material_dark01_random_47 material_dark01_random_58 material_dark01_random_69 material_dark02 material_dark02_1 material_dark02_10 material_dark02_2 material_dark02_3 material_dark02_4 material_dark02_5 material_dark02_6 material_dark02_7 material_dark02_8 material_dark02_9 material_dark02_high material_dark02_random_47 material_dark02_random_58 material_dark02_random_69 material_ele01 material_ele01_1 material_ele01_10 material_ele01_2 material_ele01_3 material_ele01_4 material_ele01_5 material_ele01_6 material_ele01_7 material_ele01_8 material_ele01_9 material_ele01_high material_ele01_random_47 material_ele01_random_58 material_ele01_random_69 material_ele02 material_ele02_1 material_ele02_10 material_ele02_2 material_ele02_3 material_ele02_4 material_ele02_5 material_ele02_6 material_ele02_7 material_ele02_8 material_ele02_9 material_ele02_high material_ele02_random_47 material_ele02_random_58 material_ele02_random_69 material_fire01 material_fire01_1 material_fire01_10 material_fire01_2 material_fire01_3 material_fire01_4 material_fire01_5 material_fire01_6 material_fire01_7 material_fire01_8 material_fire01_9 material_fire01_high material_fire01_random_47 material_fire01_random_58 material_fire01_random_69 material_fire02 material_fire02_1 material_fire02_10 material_fire02_2 material_fire02_3 material_fire02_4 material_fire02_5 material_fire02_6 material_fire02_7 material_fire02_8 material_fire02_9 material_fire02_high material_fire02_random_47 material_fire02_random_58 material_fire02_random_69 material_holy01 material_holy01_1 material_holy01_10 material_holy01_2 material_holy01_3 material_holy01_4 material_holy01_5 material_holy01_6 material_holy01_7 material_holy01_8 material_holy01_9 material_holy01_high material_holy01_random_47 material_holy01_random_58 material_holy01_random_69 material_holy02 material_holy02_1 material_holy02_10 material_holy02_2 material_holy02_3 material_holy02_4 material_holy02_5 material_holy02_6 material_holy02_7 material_holy02_8 material_holy02_9 material_holy02_high material_holy02_random_47 material_holy02_random_58 material_holy02_random_69 material_ice01 material_ice01_1 material_ice01_10 material_ice01_2 material_ice01_3 material_ice01_4 material_ice01_5 material_ice01_6 material_ice01_7 material_ice01_8 material_ice01_9 material_ice01_high material_ice01_random_47 material_ice01_random_58 material_ice01_random_69 material_ice02 material_ice02_1 material_ice02_10 material_ice02_2 material_ice02_3 material_ice02_4 material_ice02_5 material_ice02_6 material_ice02_7 material_ice02_8 material_ice02_9 material_ice02_high material_ice02_random_47 material_ice02_random_58 material_ice02_random_69 mole_digger mole_digger_fake mother2011_1 mother2011_2 neiger01card neiger02card neiger03card neiger04card neiger05card neiger06card neiger07card neiger08card neiger09card neiger10card neiger11card neiger12card nobel_aid satan_g_card slot_accs specialneiger sub_card_bob sub_card_bubble1 sub_card_bubble2 sub_card_dragon_blue sub_card_etaros sub_card_gold sub_card_heart1 sub_card_heart2 sub_card_note1 sub_card_note2 sub_card_random_1 sub_card_random_2 sub_card_rousi sub_card_saintthunder_b sub_card_saintthunder_r sub_card_space sub_card_star1 sub_card_star2 sub_card_swarm sub_card_xmas summer_2022 summer_2022_fake summercard01 thaizonecard worldcupLv4 worldcupLv5 xmas2018 zoocard".split(' ');
 
@@ -681,8 +650,7 @@ function iconNameToGithubUrl(iconName) {
 
       document.getElementById('nameidSection').classList.toggle('hidden', tab !== 'nameid');
       document.getElementById('cardlistSection').classList.toggle('hidden', tab !== 'cardlist');
-      document.getElementById('commentSection').classList.toggle('hidden', tab !== 'comment');
-      document.getElementById('renumberSection').classList.toggle('hidden', tab !== 'renumber');
+      document.getElementById('utilitySection').classList.toggle('hidden', tab !== 'utility');
 	  document.getElementById('settingSection').classList.toggle('hidden', tab !== 'setting');
     }
 
@@ -996,48 +964,23 @@ renderGallery();
     }
 
 
-    function setCommentMode(mode) {
-      const lines = commentInput.value.split('\n');
-
-      const outputLines = lines.map(line => {
-        if (mode === 'add') {
-          // กันไม่ให้เติม // ซ้ำ ถ้าบรรทัดนั้นมี // อยู่แล้ว
-          return line.trimStart().startsWith('//') ? line : '//' + line;
-        }
-
-        if (mode === 'remove') {
-          // ลบ // เฉพาะด้านหน้าบรรทัด และคงข้อความหลังจากนั้นไว้เหมือนเดิม
-          return line.replace(/^\s*\/\//, '');
-        }
-
-        return line;
-      });
-
-      commentOutput.value = outputLines.join('\n');
+    function resetUtilityStatus() {
+      utilityStatus.style.display = 'none';
+      utilityStatus.textContent = '';
+      utilityCopyStatus.style.display = 'none';
     }
 
-    function copyCommentOutput() {
-      if (!commentOutput.value) return;
+    function utilityAddComment() {
+      resetUtilityStatus();
 
-      navigator.clipboard.writeText(commentOutput.value).then(() => {
-        commentCopyStatus.style.display = 'inline';
-        setTimeout(() => {
-          commentCopyStatus.style.display = 'none';
-        }, 1400);
-      });
+      utilityOutput.value = addCommentToText(utilityInput.value);
     }
 
-    function clearCommentTool() {
-      commentInput.value = '';
-      commentOutput.value = '';
-      commentCopyStatus.style.display = 'none';
+    function utilityRemoveComment() {
+      resetUtilityStatus();
+
+      utilityOutput.value = removeCommentFromText(utilityInput.value);
     }
-
-    commentInput.addEventListener('input', () => {
-      commentOutput.value = '';
-      commentCopyStatus.style.display = 'none';
-    });
-
 
     function getFirstConfigNumber(text) {
       const lines = text.split('\n');
@@ -1050,89 +993,120 @@ renderGallery();
       return '';
     }
 
-    function convertRenumberTool() {
-      const inputText = renumberInput.value;
-      let fromNumber = renumberFrom.value.trim();
-      const toNumber = renumberTo.value.trim();
-
-      renumberStatus.style.display = 'none';
-      renumberStatus.textContent = '';
-      renumberCopyStatus.style.display = 'none';
+    function runUtilityRenumberOnly() {
+      const inputText = utilityInput.value;
+      let fromNumber = utilityFromNumber.value.trim();
+      const toNumber = utilityToNumber.value.trim();
 
       if (!inputText.trim()) {
-        renumberOutput.value = '';
-        renumberStatus.textContent = 'กรุณากรอก config ก่อน';
-        renumberStatus.style.display = 'block';
-        return;
+        utilityOutput.value = '';
+        utilityStatus.textContent = 'กรุณากรอก config ก่อน';
+        utilityStatus.style.display = 'block';
+        return null;
       }
 
       if (!fromNumber) {
         fromNumber = getFirstConfigNumber(inputText);
-        renumberFrom.value = fromNumber;
+        utilityFromNumber.value = fromNumber;
       }
 
       if (!fromNumber || !toNumber) {
-        renumberOutput.value = '';
-        renumberStatus.textContent = 'กรุณากรอกเลขเดิมและเลขใหม่ หรือให้ระบบจับเลขเดิมจากบรรทัดแรกได้';
-        renumberStatus.style.display = 'block';
-        return;
+        utilityOutput.value = '';
+        utilityStatus.textContent = 'กรุณากรอกเลขใหม่ก่อน หรือกรอกเลขเดิมเองถ้าระบบจับจากบรรทัดแรกไม่ได้';
+        utilityStatus.style.display = 'block';
+        return null;
       }
 
       const escapedFrom = fromNumber.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`^(\\s*\\/?\\/?\\s*[A-Za-z_][A-Za-z0-9_]*?)${escapedFrom}(?=\\.|=)`, 'gm');
 
       let replaceCount = 0;
-      renumberOutput.value = inputText.replace(regex, (match, prefix) => {
+      const resultText = inputText.replace(regex, (match, prefix) => {
         replaceCount++;
         return prefix + toNumber;
       });
 
       if (replaceCount === 0) {
-        renumberStatus.textContent = `ไม่พบ key ที่มีเลข ${fromNumber} ก่อน . หรือก่อน =`;
-        renumberStatus.style.display = 'block';
+        utilityOutput.value = '';
+        utilityStatus.textContent = `ไม่พบ key ที่มีเลข ${fromNumber} ก่อน . หรือก่อน =`;
+        utilityStatus.style.display = 'block';
+        return null;
       }
+
+      return resultText;
     }
 
-    function copyRenumberOutput() {
-      if (!renumberOutput.value) return;
+    function addCommentToText(text) {
+      return text.split('\n').map(line => {
+        if (line === '') return line;
+        return line.trimStart().startsWith('//') ? line : '//' + line;
+      }).join('\n');
+    }
 
-      navigator.clipboard.writeText(renumberOutput.value).then(() => {
-        renumberCopyStatus.style.display = 'inline';
+    function removeCommentFromText(text) {
+      return text.split('\n').map(line => {
+        return line.replace(/^\s*\/\//, '');
+      }).join('\n');
+    }
+
+    function utilityRenumber() {
+      resetUtilityStatus();
+      const resultText = runUtilityRenumberOnly();
+      if (resultText === null) return;
+      utilityOutput.value = resultText;
+    }
+
+    function utilityRenumberAddComment() {
+      resetUtilityStatus();
+      const resultText = runUtilityRenumberOnly();
+      if (resultText === null) return;
+      utilityOutput.value = addCommentToText(resultText);
+    }
+
+    function utilityRenumberRemoveComment() {
+      resetUtilityStatus();
+      const resultText = runUtilityRenumberOnly();
+      if (resultText === null) return;
+      utilityOutput.value = removeCommentFromText(resultText);
+    }
+
+    function copyUtilityOutput() {
+      if (!utilityOutput.value) return;
+
+      navigator.clipboard.writeText(utilityOutput.value).then(() => {
+        utilityCopyStatus.style.display = 'inline';
         setTimeout(() => {
-          renumberCopyStatus.style.display = 'none';
+          utilityCopyStatus.style.display = 'none';
         }, 1400);
       });
     }
 
-    function clearRenumberTool() {
-      renumberInput.value = '';
-      renumberFrom.value = '';
-      renumberTo.value = '';
-      renumberOutput.value = '';
-      renumberStatus.style.display = 'none';
-      renumberStatus.textContent = '';
-      renumberCopyStatus.style.display = 'none';
+    function clearUtilityTool() {
+      utilityInput.value = '';
+      utilityFromNumber.value = '';
+      utilityToNumber.value = '';
+      utilityOutput.value = '';
+      utilityStatus.style.display = 'none';
+      utilityStatus.textContent = '';
+      utilityCopyStatus.style.display = 'none';
     }
 
-    renumberInput.addEventListener('input', () => {
-      renumberOutput.value = '';
-      renumberStatus.style.display = 'none';
-      renumberCopyStatus.style.display = 'none';
+    utilityInput.addEventListener('input', () => {
+      utilityOutput.value = '';
+      resetUtilityStatus();
 
-      const detectedNumber = getFirstConfigNumber(renumberInput.value);
-      if (detectedNumber) renumberFrom.value = detectedNumber;
+      const detectedNumber = getFirstConfigNumber(utilityInput.value);
+      if (detectedNumber) utilityFromNumber.value = detectedNumber;
     });
 
-    renumberFrom.addEventListener('input', () => {
-      renumberOutput.value = '';
-      renumberStatus.style.display = 'none';
-      renumberCopyStatus.style.display = 'none';
+    utilityFromNumber.addEventListener('input', () => {
+      utilityOutput.value = '';
+      resetUtilityStatus();
     });
 
-    renumberTo.addEventListener('input', () => {
-      renumberOutput.value = '';
-      renumberStatus.style.display = 'none';
-      renumberCopyStatus.style.display = 'none';
+    utilityToNumber.addEventListener('input', () => {
+      utilityOutput.value = '';
+      resetUtilityStatus();
     });
 
    function loadDataFromAPI(forceRefresh = false) {
